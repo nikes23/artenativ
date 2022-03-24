@@ -11,14 +11,16 @@ import 'package:artenativ/home.dart';
 import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
 
-class AddItemsScreen extends StatefulWidget {
-  const AddItemsScreen({Key? key}) : super(key: key);
+import 'globals.dart';
+
+class AddItemsExtendScreen extends StatefulWidget {
+  const AddItemsExtendScreen({Key? key}) : super(key: key);
 
   @override
-  _AddItemsScreenState createState() => _AddItemsScreenState();
+  _AddItemsExtendScreenState createState() => _AddItemsExtendScreenState();
 }
 
-class _AddItemsScreenState extends State<AddItemsScreen> {
+class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   final _formKey = GlobalKey<FormState>();
   String response = '';
 
@@ -33,16 +35,38 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   String? _artNrLieferant = '';
   String? _artNrIntern = '';
   String? _eanBarcode = '';
+  String? _bezeichnung = '';
   String? _dimension = '';
   String? _haptik = '';
   String? _optik = '';
+  String? _sortierung = '';
+  String? _vpeEinzeln = '';
+  String? _vpeBund = '';
+  String? _eigenschaft = '';
+  String? _einkaufspreis = '';
+  String? _verkaufspreisEins = '';
+  String? _verkaufspreisZwei = '';
+  String? _verkaufspreisDrei = '';
+  String? _verkaufspreisMwSt = '';
+  String? _ausstellungsplatz = '';
 
   TextEditingController artNrLieferantController = TextEditingController();
   TextEditingController artNrInternController = TextEditingController();
   TextEditingController eanBarcodeController = TextEditingController();
+  TextEditingController bezeichnungController = TextEditingController();
   TextEditingController dimensionController = TextEditingController();
   TextEditingController haptikController = TextEditingController();
   TextEditingController optikController = TextEditingController();
+  TextEditingController sortierungController = TextEditingController();
+  TextEditingController vpeEinzelnController = TextEditingController();
+  TextEditingController vpeBundController = TextEditingController();
+  TextEditingController eigenschaftController = TextEditingController();
+  final einkaufspreisController = TextEditingController();
+  TextEditingController verkaufspreisEinsController = TextEditingController();
+  TextEditingController verkaufspreisZweiController = TextEditingController();
+  TextEditingController verkaufspreisDreiController = TextEditingController();
+  TextEditingController verkaufspreisMwStController = TextEditingController();
+  TextEditingController ausstellungsplatzController = TextEditingController();
 
   File? image;
   var imageContainer;
@@ -55,10 +79,23 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     _artNrLieferant = artNrLieferantController.text;
     _artNrIntern = artNrInternController.text;
     _eanBarcode = eanBarcodeController.text;
+    _bezeichnung = bezeichnungController.text;
     localMaterial = globals.selectedMaterial;
     _dimension = dimensionController.text;
     _haptik = haptikController.text;
     _optik = optikController.text;
+    _sortierung = sortierungController.text;
+    _vpeEinzeln = vpeEinzelnController.text;
+    _vpeBund = vpeBundController.text;
+    _eigenschaft = eigenschaftController.text;
+    localBeanspruchung = globals.selectedBeanspruchung;
+    localVerfugbarkeit = globals.selectedVerfugbarkeit;
+    _einkaufspreis = einkaufspreisController.text;
+    _verkaufspreisEins = verkaufspreisEinsController.text;
+    _verkaufspreisZwei = verkaufspreisZweiController.text;
+    _verkaufspreisDrei = verkaufspreisDreiController.text;
+    _verkaufspreisMwSt = verkaufspreisMwStController.text;
+    _ausstellungsplatz = ausstellungsplatzController.text;
     super.initState();
   }
 
@@ -68,9 +105,20 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     artNrLieferantController.dispose();
     artNrInternController.dispose();
     eanBarcodeController.dispose();
+    bezeichnungController.dispose();
     dimensionController.dispose();
     haptikController.dispose();
     optikController.dispose();
+    sortierungController.dispose();
+    vpeEinzelnController.dispose();
+    vpeBundController.dispose();
+    eigenschaftController.dispose();
+    einkaufspreisController.dispose();
+    verkaufspreisEinsController.dispose();
+    verkaufspreisZweiController.dispose();
+    verkaufspreisDreiController.dispose();
+    verkaufspreisMwStController.dispose();
+    ausstellungsplatzController.dispose();
     _formKey.currentState?.reset();
     super.dispose();
   }
@@ -119,6 +167,40 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           ),
                           getListView(context),
                           //Lieferant
+                          /*SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Hersteller*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 18.0, color: Colors.black),
+                                  decoration: buildSignUpInputDecoration(
+                                      'Herstellername eingeben', Icons.house),
+                                  onSaved: (value) => _firstName = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Herstellernamen ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),*/
                           SizedBox(
                             width: 600,
                             child: Column(
@@ -571,72 +653,55 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                     if (artikeltyp == 'Fliesen') {
                                       globals.kategorien =
                                           globals.fliesenKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Parkett') {
                                       globals.kategorien =
                                           globals.parkettKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Garten') {
                                       globals.kategorien =
                                           globals.gartenKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Profile') {
                                       globals.kategorien =
                                           globals.profileKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Beläge') {
                                       globals.kategorien =
                                           globals.belaegeKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Chemie') {
                                       globals.kategorien =
                                           globals.chemieKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Naturbaustoffe') {
                                       globals.kategorien =
                                           globals.naturbaustoffeKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Holz') {
                                       globals.kategorien =
                                           globals.holzKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Bau') {
                                       globals.kategorien = globals.bauKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Unterlagen') {
                                       globals.kategorien =
                                           globals.unterlagenKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Sockelleisten') {
                                       globals.kategorien =
                                           globals.sockelleistenKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Stein') {
                                       globals.kategorien =
                                           globals.keineKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp ==
                                         'Werkzeuge und Zubehör') {
                                       globals.kategorien =
                                           globals.werkzeugeZubehoerKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Schreinerei') {
                                       globals.kategorien =
                                           globals.keineKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Glaserei') {
                                       globals.kategorien =
                                           globals.keineKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == 'Metallbau') {
                                       globals.kategorien =
                                           globals.keineKategorie;
-                                      clearArtikeltyp();
                                     } else if (artikeltyp == null) {
                                       setState(() {
                                         List<String> glob;
                                         globals.kategorien = [];
-                                        clearArtikeltyp();
                                         glob = globals.kategorien;
                                         log('LogELSE: $glob');
                                       });
@@ -644,14 +709,12 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                       setState(() {
                                         List<String> glob;
                                         globals.kategorien = [];
-                                        clearArtikeltyp();
                                         glob = globals.kategorien;
                                         log('LogELSE: $glob');
                                       });
                                     }
                                     setState(() {
                                       globals.selectedKategorie = null;
-                                      globals.selectedMaterial = null;
                                       globals.selectedArtikeltyp =
                                           artikeltyp! as String?;
 
@@ -876,10 +939,6 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                     } else if (kategorie == 'Schleifmittel') {
                                       globals.materialien =
                                           globals.werkzeugeZubehoerMaterial;
-                                    } else if (kategorie ==
-                                        'Keine Kategorie definiert') {
-                                      globals.materialien =
-                                          globals.keinMaterial;
                                     } else if (kategorie == null) {
                                       setState(() {
                                         List<String> glob;
@@ -939,6 +998,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: artNrLieferantController,
+                                  //validator: UserNameValidator.validate,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
@@ -984,6 +1044,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: artNrInternController,
+                                  //validator: UserNameValidator.validate,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
@@ -1045,6 +1106,45 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Bitte geben Sie die EAN Barcodenummer ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Bezeichnung
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Bezeichnung*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: bezeichnungController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Bezeichnung eingeben'),
+                                  onSaved: (value) => _bezeichnung = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie eine Bezeichnung ein';
                                     }
                                     return null;
                                   },
@@ -1143,6 +1243,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: dimensionController,
+                                  //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
                                   decoration: buildInputDecoration(
@@ -1181,6 +1282,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: haptikController,
+                                  //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
                                   decoration:
@@ -1219,6 +1321,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: optikController,
+                                  //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
                                   decoration:
@@ -1237,6 +1340,597 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           const SizedBox(
                             height: 8.0,
                           ),
+                          //Sortierung
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Sortierung*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: sortierungController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Sortierung eingeben'),
+                                  onSaved: (value) => _sortierung = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie die Sortierung ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //VPE Einzeln
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'VPE Einzeln*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: vpeEinzelnController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'VPE Einzeln eingeben'),
+                                  onSaved: (value) => _vpeEinzeln = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den VPE Einzeln ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //VPE Bund
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'VPE Bund*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: vpeBundController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration:
+                                      buildInputDecoration('VPE Bund eingeben'),
+                                  onSaved: (value) => _vpeBund = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie VPE Bund ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Eigenschaft
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Eigenschaft*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: eigenschaftController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Eigenschaft eingeben'),
+                                  onSaved: (value) => _eigenschaft = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie die Eigenschaft ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Beanspruchungsklasse
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Beanspruchungsklasse*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                DropdownButtonFormField(
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  isExpanded: true,
+                                  decoration: buildInputDecorationDropdown(),
+                                  validator: (value) => value == null
+                                      ? "Wählen Sie bitte eine Beanspruchungsklasse aus!"
+                                      : null,
+                                  dropdownColor: Colors.white,
+                                  value: globals.selectedBeanspruchung,
+                                  onSaved: (value) =>
+                                      globals.selectedBeanspruchung,
+                                  onChanged: (beanspruchung) {
+                                    setState(() {
+                                      globals.selectedBeanspruchung =
+                                          beanspruchung as String?;
+                                      localBeanspruchung =
+                                          globals.selectedBeanspruchung;
+                                    });
+                                  },
+                                  items: globals.beanspruchungsKlassen,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Verfügbarkeit
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Verfügbarkeit*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                DropdownButtonFormField(
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  isExpanded: true,
+                                  decoration: buildInputDecorationDropdown(),
+                                  validator: (value) => value == null
+                                      ? "Wählen Sie bitte eine Verfügbarkeit aus!"
+                                      : null,
+                                  dropdownColor: Colors.white,
+                                  value: globals.selectedVerfugbarkeit,
+                                  onSaved: (value) =>
+                                      globals.selectedVerfugbarkeit,
+                                  onChanged: (verfugbarkeit) {
+                                    setState(() {
+                                      globals.selectedVerfugbarkeit =
+                                          verfugbarkeit as String?;
+                                      localVerfugbarkeit =
+                                          globals.selectedVerfugbarkeit;
+                                    });
+                                  },
+                                  items: globals.verfugbarkeit,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Einkaufspreis
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Einkaufspreis*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: einkaufspreisController,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+[,.]?\d{0,2}')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                  /*
+                                  //Number TextField with , and more than 2 decimal digits
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'[0-9]+[,.]{0,1}[0-9]*')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                   */
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Einkaufspreis eingeben'),
+                                  onSaved: (value) => _einkaufspreis = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Einkaufspreis ein';
+                                    } else {
+                                      setState(() {
+                                        int testnumbe = 20;
+                                        int sum = int.parse(
+                                                einkaufspreisController.text) +
+                                            testnumbe;
+                                        globals.einkauf = sum.toString();
+                                      });
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Verkaufspreis 1
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Verkaufspreis 1*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: verkaufspreisEinsController,
+                                  //validator: UserNameValidator.validate,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+[,.]?\d{0,2}')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Verkaufspreis 1 eingeben'),
+                                  onSaved: (value) =>
+                                      _verkaufspreisEins = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Verkaufspreis 1 ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Verkaufspreis 2
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Verkaufspreis 2*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: verkaufspreisZweiController,
+                                  //validator: UserNameValidator.validate,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+[,.]?\d{0,2}')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Verkaufspreis 2 eingeben'),
+                                  onSaved: (value) =>
+                                      _verkaufspreisZwei = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Verkaufspreis 2 ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Verkaufspreis 3
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Verkaufspreis 3*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: verkaufspreisDreiController,
+                                  //validator: UserNameValidator.validate,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+[,.]?\d{0,2}')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Verkaufspreis 3 eingeben'),
+                                  onSaved: (value) =>
+                                      _verkaufspreisDrei = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Verkaufspreis 3 ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Verkaufspreis inkl. MwSt 19%
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Verkauspreis inkl. MwSt.*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: verkaufspreisMwStController,
+                                  //validator: UserNameValidator.validate,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+[,.]?\d{0,2}')),
+                                    TextInputFormatter.withFunction(
+                                      (oldValue, newValue) => newValue.copyWith(
+                                        text:
+                                            newValue.text.replaceAll('.', ','),
+                                      ),
+                                    ),
+                                  ],
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Verkauspreis inkl. MwSt. eingeben'),
+                                  onSaved: (value) =>
+                                      _verkaufspreisMwSt = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Verkaufspreis inkl. MwSt ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          //Ausstellplatz
+                          SizedBox(
+                            width: 600,
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Ausstellplatz*',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: ausstellungsplatzController,
+                                  //validator: UserNameValidator.validate,
+                                  style: const TextStyle(
+                                      fontSize: 16.0, color: Colors.black),
+                                  decoration: buildInputDecoration(
+                                      'Ausstellplatz eingeben'),
+                                  onSaved: (value) =>
+                                      _ausstellungsplatz = value!,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Bitte geben Sie den Ausstellplatz ein';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          /**if (localArtikeltyp != null) ...[
+                              Text(
+                              'Artikeltyp: ' + localArtikeltyp!,
+                              )
+                              ] else ...[
+                              Text(
+                              'Artikeltyp: ' + 'Null',
+                              )
+                              ],*/
+
+                          /**if (localKategorie != null) ...[
+                              Text(
+                              'Kategorie: ' + localKategorie!,
+                              )
+                              ] else ...[
+                              Text(
+                              'Kategorie: ' + 'Null',
+                              )
+                              ],*/
                           const SizedBox(
                             width: 600,
                             child: Padding(
@@ -1271,6 +1965,11 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
         ),
       ),
     );
+  }
+
+  void clearHersteller() {
+    globals.kategorien = [];
+    globals.materialien = [];
   }
 
   InputDecoration buildInputDecorationDropdown() {
@@ -1400,10 +2099,23 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 _artNrLieferant = artNrLieferantController.text;
                 _artNrIntern = artNrInternController.text;
                 _eanBarcode = eanBarcodeController.text;
+                _bezeichnung = bezeichnungController.text;
                 localMaterial = globals.selectedMaterial;
                 _dimension = dimensionController.text;
                 _haptik = haptikController.text;
                 _optik = optikController.text;
+                _sortierung = sortierungController.text;
+                _vpeEinzeln = vpeEinzelnController.text;
+                _vpeBund = vpeBundController.text;
+                _eigenschaft = eigenschaftController.text;
+                localBeanspruchung = globals.selectedBeanspruchung;
+                localVerfugbarkeit = globals.selectedVerfugbarkeit;
+                _einkaufspreis = einkaufspreisController.text;
+                _verkaufspreisEins = verkaufspreisEinsController.text;
+                _verkaufspreisZwei = verkaufspreisZweiController.text;
+                _verkaufspreisDrei = verkaufspreisDreiController.text;
+                _verkaufspreisMwSt = verkaufspreisMwStController.text;
+                _ausstellungsplatz = ausstellungsplatzController.text;
 
                 log('Lieferant: $localHersteller');
                 log('Artikeltyp: $localArtikeltyp');
@@ -1411,22 +2123,50 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 log('Artikelnummer_Lieferant: $_artNrLieferant');
                 log('Artikelnummer_Intern: $_artNrIntern');
                 log('EAN Barcodenummer: $_eanBarcode');
+                log('Bezeichnung: $_bezeichnung');
                 log('Material: $localMaterial');
                 log('Dimension: $_dimension');
                 log('Haptik: $_haptik');
                 log('Optik: $_optik');
+                log('Sortierung: $_sortierung');
+                log('VPE Einzeln: $_vpeEinzeln');
+                log('VPE Bund: $_vpeBund');
+                log('Eigenschaft: $_eigenschaft');
+                log('Beanspruchung: $localBeanspruchung');
+                log('Verfügbarkeit: $localVerfugbarkeit');
+                log('Einkaufspreis: $_einkaufspreis');
+                log('Verkaufspreis 1: $_verkaufspreisEins');
+
+                log('Testrechnung: $einkauf');
+                log('Verkaufspreis 2: $_verkaufspreisZwei');
+                log('Verkaufspreis 3: $_verkaufspreisDrei');
+                log('Verkaufspreis MwSt: $_verkaufspreisMwSt');
+                log('Ausstellplatz: $_ausstellungsplatz');
 
                 artNrLieferantController.clear();
                 artNrInternController.clear();
                 eanBarcodeController.clear();
+                bezeichnungController.clear();
                 dimensionController.clear();
                 haptikController.clear();
                 optikController.clear();
+                sortierungController.clear();
+                vpeEinzelnController.clear();
+                vpeBundController.clear();
+                eigenschaftController.clear();
+                einkaufspreisController.clear();
+                verkaufspreisEinsController.clear();
+                verkaufspreisZweiController.clear();
+                verkaufspreisDreiController.clear();
+                verkaufspreisMwStController.clear();
+                ausstellungsplatzController.clear();
 
                 globals.selectedHersteller = null;
                 globals.selectedArtikeltyp = null;
                 globals.selectedKategorie = null;
                 globals.selectedMaterial = null;
+                globals.selectedBeanspruchung = null;
+                globals.selectedVerfugbarkeit = null;
               });
               //addItems;
               Navigator.push(
@@ -1549,15 +2289,6 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
         MaterialPageRoute(
             builder: (context) => const LoginScreen(), fullscreenDialog: true));
   }
-}
-
-void clearHersteller() {
-  globals.kategorien = [];
-  globals.materialien = [];
-}
-
-void clearArtikeltyp() {
-  globals.materialien = [];
 }
 
 class DropdownAusstellungsplatz extends StatefulWidget {

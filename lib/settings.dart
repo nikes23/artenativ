@@ -1,5 +1,6 @@
 import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
+import 'package:artenativ/additemsextend.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -76,7 +77,7 @@ Widget getListView(BuildContext context) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
+                            builder: (context) => const AddItemsExtendScreen(),
                           ),
                         );
                       },
