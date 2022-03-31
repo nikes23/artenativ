@@ -105,8 +105,6 @@ List<DropdownMenuItem<String>> herstellerListe = [
   const DropdownMenuItem(child: Text("Otto Chemie"), value: "Otto Chemie"),
   const DropdownMenuItem(child: Text("Pallmann"), value: "Pallmann"),
   const DropdownMenuItem(child: Text("Parigiani"), value: "Parigiani"),
-  const DropdownMenuItem(child: Text("Scheffold"), value: "Scheffold"),
-  const DropdownMenuItem(child: Text("Solum"), value: "Solum"),
   const DropdownMenuItem(child: Text("Pfahler"), value: "Pfahler"),
   const DropdownMenuItem(child: Text("PNZ"), value: "PNZ"),
   const DropdownMenuItem(child: Text("Prinz Carl"), value: "Prinz Carl"),
@@ -115,14 +113,16 @@ List<DropdownMenuItem<String>> herstellerListe = [
   const DropdownMenuItem(child: Text("Raab Karcher"), value: "Raab Karcher"),
   const DropdownMenuItem(child: Text("Reincke"), value: "Reincke"),
   const DropdownMenuItem(child: Text("Repack"), value: "Repack"),
-  const DropdownMenuItem(child: Text("Sonat"), value: "Sonat"),
-  const DropdownMenuItem(child: Text("Sonnenpartner"), value: "Sonnenpartner"),
+  const DropdownMenuItem(child: Text("Scheffold"), value: "Scheffold"),
   const DropdownMenuItem(child: Text("Schimmer"), value: "Schimmer"),
   const DropdownMenuItem(child: Text("Schlau"), value: "Schlau"),
   const DropdownMenuItem(child: Text("Schlingelhoff"), value: "Schlingelhoff"),
   const DropdownMenuItem(child: Text("Schmitt B"), value: "Schmitt B"),
   const DropdownMenuItem(child: Text("Schuhböcks"), value: "Schuhböcks"),
   const DropdownMenuItem(child: Text("Schuller"), value: "Schuller"),
+  const DropdownMenuItem(child: Text("Solum"), value: "Solum"),
+  const DropdownMenuItem(child: Text("Sonat"), value: "Sonat"),
+  const DropdownMenuItem(child: Text("Sonnenpartner"), value: "Sonnenpartner"),
   const DropdownMenuItem(child: Text("Stauf"), value: "Stauf"),
   const DropdownMenuItem(child: Text("Tagia"), value: "Tagia"),
   const DropdownMenuItem(child: Text("Tapes Tools"), value: "Tapes Tools"),
@@ -613,7 +613,7 @@ List<String> chemieMaterial = ['Kein Material definiert'];
 //End Chemie
 
 //Start Fliesen
-List<String> fliesenKategorie = ['Feinsteinzeug', 'Naturstein', 'Steingut'];
+List<String> fliesenKategorie = ['Feinsteinzeug', 'Naturstein', 'Steinzeug'];
 //Start Fliesen Material
 List<String> fliesenMaterial = ['Kein Material definiert'];
 //End Fliesen Material

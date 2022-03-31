@@ -16,9 +16,14 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch().copyWith(
+          primaryColor: const Color(0xFFF76A25),
+          colorScheme: ColorScheme.light().copyWith(
+            primary: const Color(0xFFF76A25),
+            secondary: const Color(0xFFF76A25),
+          ),
+          /*colorScheme: ColorScheme.fromSwatch().copyWith(
               primary: const Color(0xFFF76A25),
-              secondary: const Color(0xFFF76A25)),
+              secondary: const Color(0xFFF76A25)),*/
         ),
         title: 'Artenativ',
         /*theme: ThemeData(

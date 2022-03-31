@@ -16,7 +16,16 @@ class _HomePageState extends State<HomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       //theme: ThemeData.dark(),
-      theme: ThemeData(),
+      theme: ThemeData(
+        primaryColor: const Color(0xFFF76A25),
+        colorScheme: ColorScheme.light().copyWith(
+          primary: const Color(0xFFF76A25),
+          secondary: const Color(0xFFF76A25),
+        ),
+        /*colorScheme: ColorScheme.fromSwatch().copyWith(
+              primary: const Color(0xFFF76Ap25),
+              secondary: const Color(0xFFF76A25)),*/
+      ),
       home: const MyBottomNavigationBar(),
     );
   }

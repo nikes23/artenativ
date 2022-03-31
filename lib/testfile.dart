@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'ItemDataModel.dart';
 import 'globals.dart' as globals;
 
 import 'package:artenativ/home.dart';
@@ -14,22 +13,15 @@ import 'package:flutter/material.dart';
 
 import 'globals.dart';
 
-class AddItemsExtendScreen extends StatefulWidget {
-  final ItemDataModel items;
-
-  const AddItemsExtendScreen({required this.items});
+class TestFileScreen extends StatefulWidget {
+  const TestFileScreen({Key? key}) : super(key: key);
 
   @override
-  _AddItemsExtendScreenState createState() =>
-      _AddItemsExtendScreenState(items: this.items);
+  _TestFileScreenState createState() => _TestFileScreenState();
 }
 
-class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
-  final ItemDataModel items;
-  _AddItemsExtendScreenState({required this.items});
+class _TestFileScreenState extends State<TestFileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _key = GlobalKey<FormFieldState>();
-
   String response = '';
 
   String? localHersteller;
@@ -81,25 +73,23 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
 
   @override
   void initState() {
-    globals.artTypen = [items.artikeltyp];
-    globals.kategorien = [items.kategorie];
-    globals.materialien = [items.material];
-    globals.selectedHersteller = items.lieferant;
-    globals.selectedArtikeltyp = items.artikeltyp;
-    globals.selectedKategorie = items.kategorie;
-    globals.selectedMaterial = items.material;
-
-    _artNrLieferant = items.artikelnummerlieferant;
-    _artNrIntern = items.artikelnummerintern;
-    _eanBarcode = items.eanbarcode;
+    localHersteller = globals.selectedHersteller;
+    localArtikeltyp = globals.selectedArtikeltyp;
+    localKategorie = globals.selectedKategorie;
+    _artNrLieferant = artNrLieferantController.text;
+    _artNrIntern = artNrInternController.text;
+    _eanBarcode = eanBarcodeController.text;
     _bezeichnung = bezeichnungController.text;
-    _dimension = items.dimension;
-    _haptik = items.haptik;
-    _optik = items.optik;
+    localMaterial = globals.selectedMaterial;
+    _dimension = dimensionController.text;
+    _haptik = haptikController.text;
+    _optik = optikController.text;
     _sortierung = sortierungController.text;
     _vpeEinzeln = vpeEinzelnController.text;
     _vpeBund = vpeBundController.text;
     _eigenschaft = eigenschaftController.text;
+    localBeanspruchung = globals.selectedBeanspruchung;
+    localVerfugbarkeit = globals.selectedVerfugbarkeit;
     _einkaufspreis = einkaufspreisController.text;
     _verkaufspreisEins = verkaufspreisEinsController.text;
     _verkaufspreisZwei = verkaufspreisZweiController.text;
@@ -112,13 +102,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    globals.selectedHersteller = null;
-    globals.selectedArtikeltyp = null;
-    globals.selectedKategorie = null;
-    globals.selectedMaterial = null;
-    globals.artTypen = [];
-    globals.kategorien = [];
-    globals.materialien = [];
     artNrLieferantController.dispose();
     artNrInternController.dispose();
     eanBarcodeController.dispose();
@@ -137,8 +120,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     verkaufspreisMwStController.dispose();
     ausstellungsplatzController.dispose();
     _formKey.currentState?.reset();
-    _key.currentState?.reset();
-    log('Test');
     super.dispose();
   }
 
@@ -147,14 +128,9 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        /*leading: GestureDetector(
-            child: Icon(Icons.arrow_back_ios),
-            onTap: () {
-              Navigator.pop(context);
-            }),*/
         centerTitle: true,
         elevation: 0,
-        title: const Text('Bearbeiten'),
+        title: const Text('Erfassen'),
         backgroundColor: const Color(0xFFF76A25),
       ),
       //drawer: const ChatDrawer(),
@@ -177,7 +153,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                             width: 600,
                             child: Center(
                               child: Text(
-                                'Artikel bearbeiten',
+                                'Artikel erfassen',
                                 style: TextStyle(
                                   color: Color(0xFFF76A25),
                                   fontSize: 24.0,
@@ -269,7 +245,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Lieferanten aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.lieferant,
+                                  value: globals.selectedHersteller,
                                   onSaved: (value) =>
                                       globals.selectedHersteller,
                                   onChanged: (hersteller) {
@@ -644,7 +620,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 DropdownButtonFormField(
-                                  key: _key,
                                   icon: const Icon(Icons.keyboard_arrow_down),
                                   hint: const Text(
                                     '- Artikeltyp auswählen -',
@@ -671,7 +646,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Artikeltyp aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.artikeltyp,
+                                  value: globals.selectedArtikeltyp,
                                   onSaved: (value) =>
                                       globals.selectedArtikeltyp,
                                   onChanged: (artikeltyp) {
@@ -807,7 +782,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Kategorie aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.kategorie,
+                                  value: globals.selectedKategorie,
                                   onSaved: (value) => globals.selectedKategorie,
                                   onChanged: (kategorie) {
                                     if (kategorie == 'Massivparkett') {
@@ -1022,8 +997,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: artNrLieferantController
-                                    ..text = _artNrLieferant!,
+                                  controller: artNrLieferantController,
                                   //validator: UserNameValidator.validate,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
@@ -1069,8 +1043,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: artNrInternController
-                                    ..text = _artNrIntern!,
+                                  controller: artNrInternController,
                                   //validator: UserNameValidator.validate,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
@@ -1117,8 +1090,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: eanBarcodeController
-                                    ..text = _eanBarcode!,
+                                  controller: eanBarcodeController,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
@@ -1228,7 +1200,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte ein Material aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.material,
+                                  value: globals.selectedMaterial,
                                   onSaved: (value) => globals.selectedMaterial,
                                   onChanged: (material) {
                                     setState(() {
@@ -1270,8 +1242,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: dimensionController
-                                    ..text = _dimension!,
+                                  controller: dimensionController,
                                   //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
@@ -1310,7 +1281,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: haptikController..text = _haptik!,
+                                  controller: haptikController,
                                   //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
@@ -1349,7 +1320,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: optikController..text = _optik!,
+                                  controller: optikController,
                                   //validator: UserNameValidator.validate,
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
@@ -2198,7 +2169,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 globals.selectedVerfugbarkeit = null;
               });
               //addItems;
-              Navigator.pop(
+              Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const HomePage(),
@@ -2226,14 +2197,15 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
-          child: items.image != null
-              ? Hero(
-                  tag: items.id,
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(items.image),
-                    radius: 100.0,
-                  ),
-                )
+          child: image != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.file(
+                    image!,
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ))
               /*ClipOval(
               child: Image.file(
               image!,
@@ -2309,24 +2281,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     );
     debugPrint('Bild: $image');
     return listView;
-  }
-
-  showwidget() {
-    if (items.image != null) {
-      Hero(
-        tag: items.id,
-        child: CircleAvatar(
-          backgroundImage: NetworkImage(items.image),
-          radius: 100.0,
-        ),
-      );
-    } else {
-      Image.asset(
-        'assets/Artenativ_Logo_Schwarz.png',
-        width: 300,
-        fit: BoxFit.cover,
-      );
-    }
   }
 
   void navigateToSignIn() {
