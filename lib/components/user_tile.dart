@@ -1,6 +1,6 @@
 import 'package:artenativ/additemsextend.dart';
 import 'package:flutter/material.dart';
-import 'package:artenativ/ItemDataModel.dart';
+import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:artenativ/screens/user_details_page.dart';
 
 class UserTile extends StatelessWidget {

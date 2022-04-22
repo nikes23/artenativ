@@ -1,15 +1,20 @@
 import 'dart:developer';
 import 'dart:async';
 import 'dart:io';
+import 'package:artenativ/config.dart';
+import 'package:artenativ/models/addartikel_request_model.dart';
+import 'package:artenativ/services/api_service.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:http/http.dart' as http;
 import 'globals.dart' as globals;
-
 import 'package:artenativ/home.dart';
 import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
 
 class AddItemsScreen extends StatefulWidget {
   const AddItemsScreen({Key? key}) : super(key: key);
@@ -19,7 +24,16 @@ class AddItemsScreen extends StatefulWidget {
 }
 
 class _AddItemsScreenState extends State<AddItemsScreen> {
+  final ImagePicker _picker = ImagePicker();
+  File? imageFile;
+  String? imageName;
+
   final _formKey = GlobalKey<FormState>();
+
+  var file, extention, imagePath;
+  var id = '1';
+  var name = 'a';
+
   String response = '';
 
   String? localHersteller;
@@ -31,14 +45,14 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
 
   //Variables for Textfields Content
   String? _artNrLieferant = '';
-  String? _artNrIntern = '';
+  //String? _artNrIntern = '';
   String? _eanBarcode = '';
   String? _dimension = '';
   String? _haptik = '';
   String? _optik = '';
 
   TextEditingController artNrLieferantController = TextEditingController();
-  TextEditingController artNrInternController = TextEditingController();
+  //TextEditingController artNrInternController = TextEditingController();
   TextEditingController eanBarcodeController = TextEditingController();
   TextEditingController dimensionController = TextEditingController();
   TextEditingController haptikController = TextEditingController();
@@ -53,7 +67,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     localArtikeltyp = globals.selectedArtikeltyp;
     localKategorie = globals.selectedKategorie;
     _artNrLieferant = artNrLieferantController.text;
-    _artNrIntern = artNrInternController.text;
+    //_artNrIntern = artNrInternController.text;
     _eanBarcode = eanBarcodeController.text;
     localMaterial = globals.selectedMaterial;
     _dimension = dimensionController.text;
@@ -66,7 +80,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   void dispose() {
     // Clean up the controller when the widget is disposed.
     artNrLieferantController.dispose();
-    artNrInternController.dispose();
+    //artNrInternController.dispose();
     eanBarcodeController.dispose();
     dimensionController.dispose();
     haptikController.dispose();
@@ -965,6 +979,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                             height: 8.0,
                           ),
                           //Artikelnummer Intern
+                          /*
                           SizedBox(
                             width: 600,
                             child: Column(
@@ -1010,6 +1025,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           const SizedBox(
                             height: 8.0,
                           ),
+                           */
                           //EAN Barcode
                           SizedBox(
                             width: 600,
@@ -1020,7 +1036,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'EAN Barcode*',
+                                      'EAN-Code*',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
@@ -1034,17 +1050,22 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp(r'[0-9]')),
-                                    LengthLimitingTextInputFormatter(20),
+                                    LengthLimitingTextInputFormatter(13),
                                   ],
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
                                   decoration: buildInputDecorationImage(
-                                      'EAN Barcodenummer eingeben',
+                                      'EAN-Code eingeben',
                                       const AssetImage("assets/barcode.png")),
                                   onSaved: (value) => _eanBarcode = value!,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Bitte geben Sie die EAN Barcodenummer ein';
+                                      return 'Bitte geben Sie einen EAN-Code ein';
+                                    } else if (value.length < 8) {
+                                      return 'Der EAN-Code muss mindestens 8 Ziffern enthalten';
+                                    } else if (value.length > 8 &&
+                                        value.length < 13) {
+                                      return 'Der EAN-Code darf nur 8 oder 13 Ziffern enthalten';
                                     }
                                     return null;
                                   },
@@ -1398,7 +1419,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 localArtikeltyp = globals.selectedArtikeltyp;
                 localKategorie = globals.selectedKategorie;
                 _artNrLieferant = artNrLieferantController.text;
-                _artNrIntern = artNrInternController.text;
+                //_artNrIntern = artNrInternController.text;
                 _eanBarcode = eanBarcodeController.text;
                 localMaterial = globals.selectedMaterial;
                 _dimension = dimensionController.text;
@@ -1409,7 +1430,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 log('Artikeltyp: $localArtikeltyp');
                 log('Kategorie: $localKategorie');
                 log('Artikelnummer_Lieferant: $_artNrLieferant');
-                log('Artikelnummer_Intern: $_artNrIntern');
+                //log('Artikelnummer_Intern: $_artNrIntern');
                 log('EAN Barcodenummer: $_eanBarcode');
                 log('Material: $localMaterial');
                 log('Dimension: $_dimension');
@@ -1417,7 +1438,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 log('Optik: $_optik');
 
                 artNrLieferantController.clear();
-                artNrInternController.clear();
+                //artNrInternController.clear();
                 eanBarcodeController.clear();
                 dimensionController.clear();
                 haptikController.clear();
@@ -1428,15 +1449,183 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 globals.selectedKategorie = null;
                 globals.selectedMaterial = null;
               });
-              //addItems;
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                      fullscreenDialog: true));
+              _uploadImage();
+
+              AddartikelRequestModel model = AddartikelRequestModel(
+                lieferant: localHersteller,
+                artikeltyp: localArtikeltyp,
+                kategorie: localKategorie,
+                artnrlieferant: _artNrLieferant,
+                eancode: _eanBarcode,
+                material: localMaterial,
+                dimension: _dimension,
+                haptik: _haptik,
+                optik: _optik,
+                //image: _uploadImage(),
+                //image: imagePath,
+                image: imageName,
+                //image: imagePath.toString(),
+              );
+
+              APIService.addartikel(model).then(
+                (response) {
+                  setState(() {
+                    //isApiCallProcess = false;
+                  });
+
+                  if (response.data != null && image != null) {
+                    log("Bild wurde hochgeladen");
+
+                    showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) => AlertDialog(
+                              title: const Center(
+                                  child: Text(
+                                Config.appName,
+                                style: TextStyle(color: Color(0xFFF76A25)),
+                              )),
+                              content: const Text(
+                                  'Der Artikel wurde erfolgreich angelegt'),
+                              actions: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: GestureDetector(
+                                        child: const Text("OK"),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        }),
+                                  ),
+                                ),
+                              ],
+                            ));
+                  } else if (image == null) {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) => AlertDialog(
+                              title: const Center(
+                                  child: Text(
+                                Config.appName,
+                                style: TextStyle(color: Color(0xFFF76A25)),
+                              )),
+                              content: const Text(
+                                  'Der Artikel wurde ohne Bild hochgeladen, da keines ausgewählt/aufgenommen wurde'),
+                              actions: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: GestureDetector(
+                                        child: const Text("OK"),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        }),
+                                  ),
+                                ),
+                              ],
+                            ));
+                  } else {
+                    log("Bild hochladen fehlgeschlagen");
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) => AlertDialog(
+                              title: const Center(
+                                  child: Text(
+                                Config.appName,
+                                style: TextStyle(color: Color(0xFFF76A25)),
+                              )),
+                              content: Text(response.message),
+                              actions: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: GestureDetector(
+                                        child: const Text("OK"),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        }),
+                                  ),
+                                ),
+                              ],
+                            ));
+                  }
+                },
+              );
             }
           }),
     );
+  }
+
+  Future<String?> uploadImage(filename, url) async {
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+    request.files.add(await http.MultipartFile.fromPath('picture', filename));
+    var res = await request.send();
+    return res.reasonPhrase;
+  }
+
+  Future uploadData(imageFilePath, url) async {
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+
+    /*await http.MultipartFile.fromPath('image', imageFilePath,
+        filename: 'image_$name.jpg');*/
+
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFilePath));
+
+    //request.files.add(new http.MultipartFile.fromBytes('file', await File.fromUri("<path/to/file>").readAsBytes(), contentType: new MediaType('image', 'jpeg')))
+    /*
+    request.files.add(http.MultipartFile.fromBytes(
+        'image', await File.fromUri(Uri.parse(imagePath)).readAsBytes(),
+        filename: 'image_$name.jpg',
+        contentType: new MediaType('image', 'jpeg')));
+    */
+
+    request.fields['companyName'] = name;
+    request.fields['own_id'] = id;
+
+    var res = await request.send();
+
+    return res.statusCode;
+  }
+
+  _uploadImage() async {
+    imageName = image?.path.split('/').last;
+    //String? fileName = image?.path.split('/').last;
+
+    Map<String, String> _headers = <String, String>{
+      //'Content-Type': 'multipart/form-data',
+      'Content-Type': 'application/json, multipart/form-data',
+      'Accept': 'application/json',
+    };
+    var formData = FormData.fromMap(
+      {
+        "image": await MultipartFile.fromFile(
+          image!.path,
+          filename: imageName,
+          //filename: fileName,
+          contentType: MediaType("image", "jpeg"),
+        ),
+      },
+    );
+    Map<String, String> headers = <String, String>{
+      'Content-Type': 'multipart/form-data'
+    };
+    //_headers['access_token'] = ;
+    //var response = await Dio().post("http://localhost:4000/upload", data: formData);
+    //ONLINE HEROKU
+    var response = await Dio().post("http://artenativ.herokuapp.com/upload",
+        data: formData, options: Options(headers: _headers));
+    /**
+    //OFFICE LOCAL IMAGE UPLOAD
+    var response = await Dio().post("http://192.168.188.85:4000/upload",
+        data: formData, options: Options(headers: _headers));
+    */
+    //var response = await Dio().post("http://192.168.188.85:4000/artikel/addartikel", data: formData);
+    //var response = await Dio().post(Uri.http(Config.apiURL, Config.addartikelAPI).toString(), data: formData);
+    //var response = await Dio().post("http://192.168.178.37:4000/upload", data: formData);
+    debugPrint(response.toString());
   }
 
   Widget getListView(BuildContext context) {
@@ -1445,7 +1634,11 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
         final image = await ImagePicker().pickImage(source: source);
         if (image == null) return;
         final imageTemporary = File(image.path);
-        setState(() => this.image = imageTemporary);
+        //setState(() => this.image = imageTemporary);
+        setState(() {
+          this.image = imageTemporary;
+          imagePath = imageTemporary;
+        });
       } on PlatformException catch (e) {
         if (kDebugMode) {
           print('Bild auswählen fehlgeschlagen: $e');

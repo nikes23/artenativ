@@ -26,6 +26,10 @@ String? verkaufspreisMwStController;
 String? ausstellungsplatzController;
 
 String? einkauf;
+String? vkdreicontroller;
+
+double mwstCalculate = 0.0;
+String? mwstResult;
 
 List<String> artTypen = [];
 List<String> kategorien = [];

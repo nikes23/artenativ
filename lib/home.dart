@@ -1,6 +1,8 @@
 import 'package:artenativ/additems.dart';
+import 'package:artenativ/login.dart';
 import 'package:artenativ/searchitem.dart';
 import 'package:artenativ/settings.dart';
+import 'package:artenativ/sign_up.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,11 +24,19 @@ class _HomePageState extends State<HomePage> {
           primary: const Color(0xFFF76A25),
           secondary: const Color(0xFFF76A25),
         ),
+        //disabledColor: Colors.grey,
+
         /*colorScheme: ColorScheme.fromSwatch().copyWith(
               primary: const Color(0xFFF76Ap25),
               secondary: const Color(0xFFF76A25)),*/
       ),
-      home: const MyBottomNavigationBar(),
+      routes: {
+        '/': (context) => const MyBottomNavigationBar(),
+        '/home': (context) => const MyBottomNavigationBar(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const SignUpScreen(),
+      },
+      //home: const MyBottomNavigationBar(),
     );
   }
 }
@@ -46,6 +56,11 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   final List<Widget> _pages = [

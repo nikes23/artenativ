@@ -1,3 +1,6 @@
+import 'package:artenativ/config.dart';
+import 'package:artenativ/models/register_request_model.dart';
+import 'package:artenativ/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'package:artenativ/home.dart';
@@ -20,14 +23,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _userStatusController = TextEditingController();
-  String _username = '';
-  String _firstName = '';
-  String _lastName = '';
-  String _phoneNumber = '';
-  String _email = '';
-  String _password = '';
-  String _confirmPassword = '';
-  String _userStatus = '';
+  String? _username = '';
+  String? _firstName = '';
+  String? _lastName = '';
+  String? _phoneNumber = '';
+  String? _email = '';
+  String? _password = '';
+  String? _confirmPassword = '';
+  String? _userStatus = '';
   bool _isHidden = true;
 
   void _toggleVisibility() {
@@ -110,6 +113,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   TextFormField(
                                     controller: _firstNameController,
+                                    onChanged: (firstnamefield) {
+                                      _firstName = _firstNameController.text;
+                                    },
                                     //validator: UserNameValidator.validate,
                                     style: const TextStyle(
                                         fontSize: 18.0, color: Colors.black),
@@ -150,6 +156,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   TextFormField(
                                     controller: _lastNameController,
+                                    onChanged: (lastnamefield) {
+                                      _lastName = _lastNameController.text;
+                                    },
                                     //validator: UserNameValidator.validate,
                                     style: const TextStyle(
                                         fontSize: 18.0, color: Colors.black),
@@ -190,6 +199,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   TextFormField(
                                     controller: _mailController,
+                                    onChanged: (emailfield) {
+                                      _email = _mailController.text;
+                                    },
                                     //validator: UserNameValidator.validate,
                                     style: const TextStyle(
                                         fontSize: 18.0, color: Colors.black),
@@ -370,6 +382,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget buildSignUpInputDecorationPassword(String hint, IconData icon) {
     return TextFormField(
       controller: _passwordController,
+      onChanged: (passwordfield) {
+        _password = _passwordController.text;
+      },
       style: const TextStyle(color: Colors.black, fontSize: 18.0),
       decoration: InputDecoration(
         hintText: hint,
@@ -425,6 +440,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget buildSignUpInputDecorationConfirmPassword(String hint, IconData icon) {
     return TextFormField(
       controller: _confirmPasswordController,
+      onChanged: (confirmpasswordfield) {
+        _confirmPassword = _confirmPasswordController.text;
+      },
       style: const TextStyle(color: Colors.black, fontSize: 18.0),
       decoration: InputDecoration(
         hintText: hint,
@@ -546,6 +564,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _confirmPassword = _confirmPasswordController.text;
                 _userStatus = _userStatusController.text;
               });
+
+              RegisterRequestModel model = RegisterRequestModel(
+                firstname: _firstName,
+                lastname: _lastName,
+                password: _password,
+                email: _email,
+              );
+
+              APIService.register(model).then(
+                (response) {
+                  setState(() {
+                    //isApiCallProcess = false;
+                  });
+
+                  if (response.data != null) {
+                    showSimpleAlertDialog(
+                      context,
+                      Config.appName,
+                      "Die Registrierung war erfolgreich!",
+                      "OK",
+                      () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                    );
+                  } else {
+                    showSimpleAlertDialog(
+                      context,
+                      Config.appName,
+                      response.message,
+                      "OK",
+                      () {
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  }
+                },
+              );
+
               _userNameController.clear();
               _firstNameController.clear();
               _lastNameController.clear();
@@ -571,6 +631,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       fullscreenDialog: true));
             }
           }),
+    );
+  }
+
+  static void showSimpleAlertDialog(
+    BuildContext context,
+    String title,
+    String message,
+    String buttonText,
+    Function onPressed,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text(title),
+          content: new Text(message),
+          actions: [
+            // submitButton(
+            //   buttonText,
+            //   onPressed(),
+            // ),
+            new TextButton(
+              onPressed: () {
+                return onPressed();
+              },
+              child: new Text(buttonText),
+            )
+          ],
+        );
+      },
     );
   }
 

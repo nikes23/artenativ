@@ -1,4 +1,5 @@
 import 'package:artenativ/login.dart';
+import 'package:artenativ/services/shared_service.dart';
 import 'package:flutter/material.dart';
 import 'package:artenativ/additemsextend.dart';
 
@@ -23,11 +24,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
             child: IconButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                        fullscreenDialog: true));
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+                //SharedService.logout(context);
               },
               icon: const Icon(Icons.logout),
             ),

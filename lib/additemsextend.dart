@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'ItemDataModel.dart';
+import 'models/ItemDataModel.dart';
 import 'globals.dart' as globals;
+import 'dart:math' as math;
 
 import 'package:artenativ/home.dart';
 import 'package:artenativ/login.dart';
@@ -29,6 +30,11 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   _AddItemsExtendScreenState({required this.items});
   final _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<FormFieldState>();
+
+  double roundDouble(double value, int places) {
+    num mod = math.pow(10.0, places);
+    return ((value * mod).round().toDouble() / mod);
+  }
 
   String response = '';
 
@@ -55,7 +61,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   String? _verkaufspreisEins = '';
   String? _verkaufspreisZwei = '';
   String? _verkaufspreisDrei = '';
-  String? _verkaufspreisMwSt = '';
+  String? _verkaufspreisMwSt = '0';
   String? _ausstellungsplatz = '';
 
   TextEditingController artNrLieferantController = TextEditingController();
@@ -73,7 +79,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   TextEditingController verkaufspreisEinsController = TextEditingController();
   TextEditingController verkaufspreisZweiController = TextEditingController();
   TextEditingController verkaufspreisDreiController = TextEditingController();
-  TextEditingController verkaufspreisMwStController = TextEditingController();
+  TextEditingController verkaufspreisMwStController =
+      TextEditingController(text: "0");
   TextEditingController ausstellungsplatzController = TextEditingController();
 
   File? image;
@@ -116,6 +123,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     globals.selectedArtikeltyp = null;
     globals.selectedKategorie = null;
     globals.selectedMaterial = null;
+    globals.selectedBeanspruchung = null;
+    globals.selectedVerfugbarkeit = null;
     globals.artTypen = [];
     globals.kategorien = [];
     globals.materialien = [];
@@ -138,7 +147,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     ausstellungsplatzController.dispose();
     _formKey.currentState?.reset();
     _key.currentState?.reset();
-    log('Test');
+    log('Dispose');
     super.dispose();
   }
 
@@ -167,12 +176,13 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 children: <Widget>[
                   Container(
                     padding: const EdgeInsets.only(
-                        top: 60.0, right: 20.0, left: 20.0, bottom: 20.0),
+                        top: 30.0, right: 20.0, left: 20.0, bottom: 20.0),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          /*
                           const SizedBox(
                             width: 600,
                             child: Center(
@@ -186,6 +196,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ),
                             ),
                           ),
+                          */
                           const SizedBox(
                             height: 20.0,
                           ),
@@ -1071,6 +1082,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                 TextFormField(
                                   controller: artNrInternController
                                     ..text = _artNrIntern!,
+                                  enabled: false,
                                   //validator: UserNameValidator.validate,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
@@ -1080,7 +1092,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ],
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
-                                  decoration: buildInputDecorationImage(
+                                  decoration: buildInputDecorationImageDisable(
                                     'Artikelnummer eingeben',
                                     const AssetImage("assets/barcode.png"),
                                   ),
@@ -1108,7 +1120,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'EAN Barcode*',
+                                      'EAN-Code*',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
@@ -1123,19 +1135,29 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp(r'[0-9]')),
-                                    LengthLimitingTextInputFormatter(20),
+                                    LengthLimitingTextInputFormatter(13),
                                   ],
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
                                   decoration: buildInputDecorationImage(
-                                      'EAN Barcodenummer eingeben',
+                                      'EAN-Code eingeben',
                                       const AssetImage("assets/barcode.png")),
                                   onSaved: (value) => _eanBarcode = value!,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Bitte geben Sie die EAN Barcodenummer ein';
+                                      return 'Bitte geben Sie einen EAN-Code ein';
+                                    } else if (value.length < 8) {
+                                      return 'Der EAN-Code muss mindestens 8 Ziffern enthalten';
+                                    } else if (value.length > 8 &&
+                                        value.length < 13) {
+                                      return 'Der EAN-Code darf nur 8 oder 13 Ziffern enthalten';
                                     }
                                     return null;
+                                  },
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _eanBarcode = eanBarcodeController.text;
+                                    });
                                   },
                                 ),
                               ],
@@ -1814,7 +1836,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: verkaufspreisDreiController,
+                                  controller: verkaufspreisDreiController..text,
                                   //validator: UserNameValidator.validate,
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
@@ -1835,9 +1857,66 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       'Verkaufspreis 3 eingeben'),
                                   onSaved: (value) =>
                                       _verkaufspreisDrei = value!,
+                                  onChanged: (vkdrei) {
+                                    if (vkdrei == '' || vkdrei.isEmpty) {
+                                      setState(() {
+                                        globals.mwstCalculate = 0;
+                                        verkaufspreisMwStController.clear();
+                                        verkaufspreisMwStController.text = "0";
+                                      });
+                                    } else {
+                                      setState(() {
+                                        String? mwstPlaceholder1 =
+                                            (verkaufspreisDreiController.text
+                                                .replaceAll(",", "."));
+                                        double mwstPlaceholder11 =
+                                            double.parse(mwstPlaceholder1);
+                                        mwstPlaceholder11.toStringAsFixed(2);
+                                        log('DoubleCont: ${mwstPlaceholder11}');
+                                        globals.mwstCalculate = double.parse(
+                                            (mwstPlaceholder11 * 119 / 100)
+                                                .toStringAsFixed(2));
+                                        globals.mwstCalculate
+                                            .toStringAsFixed(2);
+                                        log('mwResult: ${globals.mwstCalculate}');
+                                        globals.mwstResult =
+                                            globals.mwstCalculate.toString();
+                                        verkaufspreisMwStController.text =
+                                            globals.mwstResult
+                                                .toString()
+                                                .replaceAll(".", ",");
+                                      });
+                                    }
+                                  },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
+                                      setState(() {
+                                        globals.mwstCalculate = 0;
+                                        verkaufspreisMwStController.clear();
+                                      });
                                       return 'Bitte geben Sie den Verkaufspreis 3 ein';
+                                    } else {
+                                      setState(() {
+                                        String? mwstPlaceholder1 =
+                                            (verkaufspreisDreiController.text
+                                                .replaceAll(",", "."));
+                                        double mwstPlaceholder11 =
+                                            double.parse(mwstPlaceholder1);
+                                        mwstPlaceholder11.toStringAsFixed(2);
+                                        log('DoubleCont: ${mwstPlaceholder11}');
+                                        globals.mwstCalculate = double.parse(
+                                            (mwstPlaceholder11 * 119 / 100)
+                                                .toStringAsFixed(2));
+                                        globals.mwstCalculate
+                                            .toStringAsFixed(2);
+                                        log('mwResult: ${globals.mwstCalculate}');
+                                        globals.mwstResult =
+                                            globals.mwstCalculate.toString();
+                                        verkaufspreisMwStController.text =
+                                            globals.mwstResult
+                                                .toString()
+                                                .replaceAll(".", ",");
+                                      });
                                     }
                                     return null;
                                   },
@@ -1868,6 +1947,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                 ),
                                 TextFormField(
                                   controller: verkaufspreisMwStController,
+                                  enabled: false,
+                                  //initialValue: _verkaufspreisMwSt,
                                   //validator: UserNameValidator.validate,
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
@@ -1884,13 +1965,14 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   ],
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
-                                  decoration: buildInputDecoration(
-                                      'Verkauspreis inkl. MwSt. eingeben'),
+                                  decoration: buildInputDecorationDisable('0'),
                                   onSaved: (value) =>
                                       _verkaufspreisMwSt = value!,
                                   validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Bitte geben Sie den Verkaufspreis inkl. MwSt ein';
+                                    if (value == null ||
+                                        value.isEmpty ||
+                                        value == '0') {
+                                      return 'Bitte geben Sie für die Berechnung einen Verkaufspreis 3 ein';
                                     }
                                     return null;
                                   },
@@ -1941,25 +2023,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                           const SizedBox(
                             height: 8.0,
                           ),
-                          /**if (localArtikeltyp != null) ...[
-                              Text(
-                              'Artikeltyp: ' + localArtikeltyp!,
-                              )
-                              ] else ...[
-                              Text(
-                              'Artikeltyp: ' + 'Null',
-                              )
-                              ],*/
-
-                          /**if (localKategorie != null) ...[
-                              Text(
-                              'Kategorie: ' + localKategorie!,
-                              )
-                              ] else ...[
-                              Text(
-                              'Kategorie: ' + 'Null',
-                              )
-                              ],*/
                           const SizedBox(
                             width: 600,
                             child: Padding(
@@ -2071,6 +2134,26 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     );
   }
 
+  InputDecoration buildInputDecorationDisable(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Colors.black,
+        fontSize: 16.0,
+      ),
+      filled: true,
+      fillColor: const Color(0xFFD3D3D3),
+      focusColor: Colors.black,
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Color(0xFFD3D3D3)),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+    );
+  }
+
   InputDecoration buildInputDecorationImage(String hint, AssetImage icon) {
     return InputDecoration(
       prefixIcon: Transform.scale(
@@ -2095,6 +2178,34 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20.0),
         borderSide: const BorderSide(width: 2, color: Color(0xFFF76A25)),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+    );
+  }
+
+  InputDecoration buildInputDecorationImageDisable(
+      String hint, AssetImage icon) {
+    return InputDecoration(
+      prefixIcon: Transform.scale(
+        scale: 0.5,
+        child: ImageIcon(
+          icon,
+          color: Colors.black,
+        ),
+      ),
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Colors.black,
+        fontSize: 16.0,
+      ),
+      filled: true,
+      fillColor: const Color(0xFFD3D3D3),
+      focusColor: Colors.black,
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Color(0xFFD3D3D3)),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -2165,8 +2276,13 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 log('Verfügbarkeit: $localVerfugbarkeit');
                 log('Einkaufspreis: $_einkaufspreis');
                 log('Verkaufspreis 1: $_verkaufspreisEins');
+                double test1 = 20.40;
+                double test2 = 21.30;
+                var testresutl = test1 + test2;
+                log('Testrechnung: $testresutl');
 
-                log('Testrechnung: $einkauf');
+                log('MwStRechnung: ${mwstCalculate}');
+
                 log('Verkaufspreis 2: $_verkaufspreisZwei');
                 log('Verkaufspreis 3: $_verkaufspreisDrei');
                 log('Verkaufspreis MwSt: $_verkaufspreisMwSt');
@@ -2334,6 +2450,46 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => const LoginScreen(), fullscreenDialog: true));
+  }
+}
+
+class DecimalTextInputFormatter extends TextInputFormatter {
+  DecimalTextInputFormatter({required this.decimalRange})
+      : assert(decimalRange == null || decimalRange > 0);
+
+  final int decimalRange;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue, // unused.
+    TextEditingValue newValue,
+  ) {
+    TextSelection newSelection = newValue.selection;
+    String truncated = newValue.text;
+
+    if (decimalRange != null) {
+      String value = newValue.text;
+
+      if (value.contains(".") &&
+          value.substring(value.indexOf(".") + 1).length > decimalRange) {
+        truncated = oldValue.text;
+        newSelection = oldValue.selection;
+      } else if (value == ".") {
+        truncated = "0.";
+
+        newSelection = newValue.selection.copyWith(
+          baseOffset: math.min(truncated.length, truncated.length + 1),
+          extentOffset: math.min(truncated.length, truncated.length + 1),
+        );
+      }
+
+      return TextEditingValue(
+        text: truncated,
+        selection: newSelection,
+        composing: TextRange.empty,
+      );
+    }
+    return newValue;
   }
 }
 

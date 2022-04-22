@@ -1,6 +1,6 @@
-import 'package:artenativ/ItemDataModel.dart';
+import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:flutter/material.dart';
-import 'package:artenativ/ItemDataModel.dart';
+import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserDetailsPage extends StatefulWidget {
