@@ -1,8 +1,21 @@
 import 'package:artenativ/home.dart';
+import 'package:artenativ/login.dart';
+import 'package:artenativ/services/shared_service.dart';
+import 'package:artenativ/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'dismisskeyboard.dart';
 
-void main() {
+Widget _defaultHome = const LoginScreen();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Get result of the login function.
+  /*bool _result = await SharedService.isLoggedIn();
+  if (_result) {
+    _defaultHome = const HomePage();
+  }*/
+
   runApp(const MyApp());
 }
 
@@ -29,7 +42,13 @@ class MyApp extends StatelessWidget {
         /*theme: ThemeData(
           primarySwatch: Colors.blue,
         ),*/
-        home: const HomePage(),
+        routes: {
+          '/': (context) => _defaultHome,
+          '/home': (context) => const HomePage(),
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const SignUpScreen(),
+        },
+        //home: const HomePage(),
       ),
     );
   }

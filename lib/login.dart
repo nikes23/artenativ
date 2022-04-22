@@ -1,7 +1,13 @@
+import 'dart:developer';
+
 import 'package:artenativ/forgetpassword.dart';
 import 'package:artenativ/home.dart';
+import 'package:artenativ/models/login_request_model.dart';
+import 'package:artenativ/services/api_service.dart';
 import 'package:artenativ/sign_up.dart';
 import 'package:flutter/material.dart';
+
+import 'config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -11,12 +17,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isApiCallProcess = false;
   final _formKey = GlobalKey<FormState>();
   String error = '';
   String errorMessage = '';
   String successMessage = '';
-  String email = 'test@test.de';
-  String password = '123456';
+  String? email;
+  String? password;
   final myControllerMail = TextEditingController();
   final myControllerPassword = TextEditingController();
   bool _isHidden = true;
@@ -229,6 +236,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
+                      /*inAsyncCall: isApiCallProcess,
+                        opacity: 0.3,
+                        key: UniqueKey(),*/
                     ),
                   ],
                 ),
@@ -245,6 +255,9 @@ class _LoginScreenState extends State<LoginScreen> {
       width: 700,
       child: TextFormField(
         controller: myControllerMail,
+        onChanged: (emailfield) {
+          email = myControllerMail.text;
+        },
         style: const TextStyle(color: Colors.black, fontSize: 18.0),
         decoration: InputDecoration(
           hintText: hintText,
@@ -292,11 +305,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (value == null || value.isEmpty) {
             return 'Bitte geben Sie Ihre E-Mail ein';
           }
-          if (value != email) {
-            return 'Ihre E-Mail oder Ihr Passwort ist falsch';
-          }
           return null;
         },
+        onSaved: (value) => email = value!,
       ),
     );
   }
@@ -306,6 +317,9 @@ class _LoginScreenState extends State<LoginScreen> {
       width: 700,
       child: TextFormField(
         controller: myControllerPassword,
+        onChanged: (passwordfield) {
+          password = myControllerPassword.text;
+        },
         style: const TextStyle(color: Colors.black, fontSize: 18.0),
         decoration: InputDecoration(
           hintText: hintText,
@@ -353,11 +367,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (value == null || value.isEmpty) {
             return 'Bitte geben Sie Ihr Passwort ein';
           }
-          if (value != password) {
-            return 'Ihre E-Mail oder Ihr Passwort ist falsch';
-          }
           return null;
         },
+        onSaved: (value) => password = value!,
       ),
     );
   }
@@ -381,14 +393,76 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
+              setState(() {
+                isApiCallProcess = true;
+              });
+
+              LoginRequestModel model = LoginRequestModel(
+                email: email,
+                password: password,
+              );
+
+              APIService.login(model).then(
+                (response) {
+                  setState(() {
+                    isApiCallProcess = false;
+                  });
+
+                  if (response) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/home',
+                      (route) => false,
+                    );
+                  } else {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) => AlertDialog(
+                              title: const Center(
+                                  child: Text(
+                                Config.appName,
+                                style: TextStyle(color: Color(0xFFF76A25)),
+                              )),
+                              content: const Text(
+                                  "Der Benutzername oder das Passwort ist ungültig!"),
+                              actions: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: GestureDetector(
+                                        child: const Text("OK"),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        }),
+                                  ),
+                                ),
+                              ],
+                            ));
+                  }
+                },
+              );
+
+              /*
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const HomePage(),
                       fullscreenDialog: true));
+              */
+
             }
           }),
     );
+  }
+
+  bool validateAndSave() {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 
   void navigateToSignIn() {
@@ -406,3 +480,42 @@ class _LoginScreenState extends State<LoginScreen> {
             fullscreenDialog: true));
   }
 }
+
+/*
+class ProgressHUD extends StatelessWidget {
+  final Widget child;
+  final bool inAsyncCall;
+  final double opacity;
+  final Color color;
+
+  ProgressHUD({
+    required Key key,
+    required this.child,
+    required this.inAsyncCall,
+    this.opacity = 0.3,
+    this.color = Colors.grey,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> widgetList = new List<Widget>.empty(growable: true);
+    widgetList.add(child);
+    if (inAsyncCall) {
+      final modal = new Stack(
+        children: [
+          new Opacity(
+            opacity: opacity,
+            child: ModalBarrier(dismissible: false, color: color),
+          ),
+          new Center(child: new CircularProgressIndicator()),
+        ],
+      );
+      widgetList.add(modal);
+    }
+    return Stack(
+      children: widgetList,
+    );
+  }
+}
+
+*/

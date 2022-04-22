@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' as rootBundle;
 import 'package:http/http.dart' as http;
-import 'package:artenativ/ItemDataModel.dart';
+import 'package:artenativ/models/ItemDataModel.dart';
 
 Future<List<ItemDataModel>> ReadJsonData() async {
   final jsondata =

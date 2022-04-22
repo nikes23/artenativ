@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:async';
 import 'dart:io';
-import 'package:artenativ/ItemDataModel.dart';
+import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' as rootBundle;
 import 'package:image_picker/image_picker.dart';
