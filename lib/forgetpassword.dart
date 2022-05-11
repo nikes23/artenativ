@@ -369,7 +369,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const HomePage(),
+                      builder: (context) => const ForgetPasswordScreen(),
                       fullscreenDialog: true));
             }
           }),

@@ -1,20 +1,30 @@
 import 'dart:developer';
 import 'dart:async';
 import 'dart:io';
+import 'package:artenativ/components/barcodescanner.dart';
+import 'package:artenativ/finditem.dart';
 import 'package:artenativ/config.dart';
 import 'package:artenativ/models/addartikel_request_model.dart';
+import 'package:artenativ/models/artikel_request.dart';
 import 'package:artenativ/services/api_service.dart';
+import 'package:artenativ/testfile.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'globals.dart' as globals;
+import 'package:artenativ/globals.dart';
+//import 'globals.dart' as globals;
 import 'package:artenativ/home.dart';
 import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+
+import 'components/qrscanner.dart';
 
 class AddItemsScreen extends StatefulWidget {
   const AddItemsScreen({Key? key}) : super(key: key);
@@ -27,6 +37,8 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   final ImagePicker _picker = ImagePicker();
   File? imageFile;
   String? imageName;
+  File? image;
+  var imageContainer;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -42,10 +54,10 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   String? localBeanspruchung;
   String? localVerfugbarkeit;
   String? localMaterial;
+  String? lieferantandartikelnummer;
 
   //Variables for Textfields Content
   String? _artNrLieferant = '';
-  //String? _artNrIntern = '';
   String? _eanBarcode = '';
   String? _dimension = '';
   String? _haptik = '';
@@ -58,22 +70,27 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   TextEditingController haptikController = TextEditingController();
   TextEditingController optikController = TextEditingController();
 
-  File? image;
-  var imageContainer;
-
   @override
   void initState() {
-    localHersteller = globals.selectedHersteller;
-    localArtikeltyp = globals.selectedArtikeltyp;
-    localKategorie = globals.selectedKategorie;
+    getInternID();
+    log("Global Init Intern ID: $artNrIntern");
+    //localHersteller = globals.selectedHersteller;
+    localHersteller = selectedHersteller;
+    localArtikeltyp = selectedArtikeltyp;
+    localKategorie = selectedKategorie;
     _artNrLieferant = artNrLieferantController.text;
-    //_artNrIntern = artNrInternController.text;
     _eanBarcode = eanBarcodeController.text;
-    localMaterial = globals.selectedMaterial;
+    eanCodeGlobal;
+    if (barcodeResult != null) {
+      _eanBarcode = barcodeResult;
+      eanCodeGlobal = barcodeResult!;
+    }
+    localMaterial = selectedMaterial;
     _dimension = dimensionController.text;
     _haptik = haptikController.text;
     _optik = optikController.text;
     super.initState();
+    image = null;
   }
 
   @override
@@ -86,6 +103,8 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     haptikController.dispose();
     optikController.dispose();
     _formKey.currentState?.reset();
+    eanCodeGlobal = '';
+    barcodeResult = null;
     super.dispose();
   }
 
@@ -177,355 +196,353 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                       ? "Wählen Sie bitte einen Lieferanten aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: globals.selectedHersteller,
-                                  onSaved: (value) =>
-                                      globals.selectedHersteller,
+                                  value: selectedHersteller,
+                                  onSaved: (value) => selectedHersteller,
                                   onChanged: (hersteller) {
                                     if (hersteller == 'Admonter') {
-                                      globals.artTypen = globals.admonter;
+                                      artTypen = admonter;
                                       clearHersteller();
                                     } else if (hersteller == 'Alu Plan') {
-                                      globals.artTypen = globals.aluPlan;
+                                      artTypen = aluPlan;
                                       clearHersteller();
                                     } else if (hersteller == 'Amorim') {
-                                      globals.artTypen = globals.amorim;
+                                      artTypen = amorim;
                                       clearHersteller();
                                     } else if (hersteller == 'Amtico') {
-                                      globals.artTypen = globals.amtico;
+                                      artTypen = amtico;
+                                      clearHersteller();
+                                    } else if (hersteller == 'Artenativ') {
+                                      artTypen = all;
                                       clearHersteller();
                                     } else if (hersteller == 'Bauwerk') {
-                                      globals.artTypen = globals.bauwerk;
+                                      artTypen = bauwerk;
                                       clearHersteller();
                                     } else if (hersteller == 'Bärwolf') {
-                                      globals.artTypen = globals.baerwolf;
+                                      artTypen = baerwolf;
                                       clearHersteller();
                                     } else if (hersteller ==
                                         'Becker Großgarten') {
-                                      globals.artTypen = globals.becker;
+                                      artTypen = becker;
                                       clearHersteller();
                                     } else if (hersteller == 'Belopa') {
-                                      globals.artTypen = globals.belopa;
+                                      artTypen = belopa;
                                       clearHersteller();
                                     } else if (hersteller == 'Biehler') {
-                                      globals.artTypen = globals.biehler;
+                                      artTypen = biehler;
                                       clearHersteller();
                                     } else if (hersteller == 'Brich') {
-                                      globals.artTypen = globals.brich;
+                                      artTypen = brich;
                                       clearHersteller();
                                     } else if (hersteller == 'BTI') {
-                                      globals.artTypen = globals.bti;
+                                      artTypen = bti;
                                       clearHersteller();
                                     } else if (hersteller == 'Buchner') {
-                                      globals.artTypen = globals.buchner;
+                                      artTypen = buchner;
                                       clearHersteller();
                                     } else if (hersteller ==
                                         'Burger Holzzentrum') {
-                                      globals.artTypen = globals.burgerHolz;
+                                      artTypen = burgerHolz;
                                       clearHersteller();
                                     } else if (hersteller == 'Christ') {
-                                      globals.artTypen = globals.christ;
+                                      artTypen = christ;
                                       clearHersteller();
                                     } else if (hersteller == 'Climacell') {
-                                      globals.artTypen = globals.climacell;
+                                      artTypen = climacell;
                                       clearHersteller();
                                     } else if (hersteller == 'Dahm') {
-                                      globals.artTypen = globals.dahm;
+                                      artTypen = dahm;
                                       clearHersteller();
                                     } else if (hersteller == 'Denzel') {
-                                      globals.artTypen = globals.denzel;
+                                      artTypen = denzel;
                                       clearHersteller();
                                     } else if (hersteller == 'Desso') {
-                                      globals.artTypen = globals.desso;
+                                      artTypen = desso;
                                       clearHersteller();
                                     } else if (hersteller == 'Dekora') {
-                                      globals.artTypen = globals.dekora;
+                                      artTypen = dekora;
                                       clearHersteller();
                                     } else if (hersteller == 'Döllken') {
-                                      globals.artTypen = globals.doellken;
+                                      artTypen = doellken;
                                       clearHersteller();
                                     } else if (hersteller == 'Dr. Schutz') {
-                                      globals.artTypen = globals.schutz;
+                                      artTypen = schutz;
                                       clearHersteller();
                                     } else if (hersteller == 'Dura') {
-                                      globals.artTypen = globals.dura;
+                                      artTypen = dura;
                                       clearHersteller();
                                     } else if (hersteller == 'Dural') {
-                                      globals.artTypen = globals.dural;
+                                      artTypen = dural;
                                       clearHersteller();
                                     } else if (hersteller ==
                                         'Effektiv Werkzeug') {
-                                      globals.artTypen =
-                                          globals.effektivWerkzeug;
+                                      artTypen = effektivWerkzeug;
                                       clearHersteller();
                                     } else if (hersteller == 'Enia') {
-                                      globals.artTypen = globals.enia;
+                                      artTypen = enia;
                                       clearHersteller();
                                     } else if (hersteller == 'Ewifoam') {
-                                      globals.artTypen = globals.ewifoam;
+                                      artTypen = ewifoam;
                                       clearHersteller();
                                     } else if (hersteller == 'Fabromont') {
-                                      globals.artTypen = globals.fabromont;
+                                      artTypen = fabromont;
                                       clearHersteller();
                                     } else if (hersteller == 'Fetim') {
-                                      globals.artTypen = globals.fetim;
+                                      artTypen = fetim;
                                       clearHersteller();
                                     } else if (hersteller ==
                                         'Fulda Filzfabrik') {
-                                      globals.artTypen =
-                                          globals.fuldaFilzfabrik;
+                                      artTypen = fuldaFilzfabrik;
                                       clearHersteller();
                                     } else if (hersteller == 'Futura Floors') {
-                                      globals.artTypen = globals.futuraFloors;
+                                      artTypen = futuraFloors;
                                       clearHersteller();
                                     } else if (hersteller == 'Floors 4ever') {
-                                      globals.artTypen = globals.floorsEver;
+                                      artTypen = floorsEver;
                                       clearHersteller();
                                     } else if (hersteller == 'Forbo Eurocool') {
-                                      globals.artTypen = globals.forboEurocool;
+                                      artTypen = forboEurocool;
                                       clearHersteller();
                                     } else if (hersteller == 'Forbo Flooring') {
-                                      globals.artTypen = globals.forboFlooring;
+                                      artTypen = forboFlooring;
                                       clearHersteller();
                                     } else if (hersteller == 'Gerflor') {
-                                      globals.artTypen = globals.gerflor;
+                                      artTypen = gerflor;
                                       clearHersteller();
                                     } else if (hersteller == 'Götz Carl') {
-                                      globals.artTypen = globals.gotzCarl;
+                                      artTypen = gotzCarl;
                                       clearHersteller();
                                     } else if (hersteller == 'Gunreben') {
-                                      globals.artTypen = globals.gunreben;
+                                      artTypen = gunreben;
                                       clearHersteller();
                                     } else if (hersteller == 'GW Tischler') {
-                                      globals.artTypen = globals.gwTischler;
+                                      artTypen = gwTischler;
                                       clearHersteller();
                                     } else if (hersteller == 'Harrer') {
-                                      globals.artTypen = globals.harrer;
+                                      artTypen = harrer;
                                       clearHersteller();
                                     } else if (hersteller == 'Hasit') {
-                                      globals.artTypen = globals.hasit;
+                                      artTypen = hasit;
                                       clearHersteller();
                                     } else if (hersteller == 'Hocotimber') {
-                                      globals.artTypen = globals.hocotimber;
+                                      artTypen = hocotimber;
                                       clearHersteller();
                                     } else if (hersteller == 'Hanke') {
-                                      globals.artTypen = globals.hanke;
+                                      artTypen = hanke;
                                       clearHersteller();
                                     } else if (hersteller == 'Intercell') {
-                                      globals.artTypen = globals.intercell;
+                                      artTypen = intercell;
                                       clearHersteller();
                                     } else if (hersteller == 'Janser') {
-                                      globals.artTypen = globals.janser;
+                                      artTypen = janser;
                                       clearHersteller();
                                     } else if (hersteller == 'Jasba') {
-                                      globals.artTypen = globals.jasba;
+                                      artTypen = jasba;
                                       clearHersteller();
                                     } else if (hersteller == 'Jäger') {
-                                      globals.artTypen = globals.jaeger;
+                                      artTypen = jaeger;
                                       clearHersteller();
                                     } else if (hersteller == 'JEP') {
-                                      globals.artTypen = globals.jep;
+                                      artTypen = jep;
                                       clearHersteller();
                                     } else if (hersteller == 'Jordan') {
-                                      globals.artTypen = globals.jordan;
+                                      artTypen = jordan;
                                       clearHersteller();
                                     } else if (hersteller == 'Keskin') {
-                                      globals.artTypen = globals.keskin;
+                                      artTypen = keskin;
                                       clearHersteller();
                                     } else if (hersteller == 'KGM') {
-                                      globals.artTypen = globals.kgm;
+                                      artTypen = kgm;
                                       clearHersteller();
                                     } else if (hersteller == 'KLB') {
-                                      globals.artTypen = globals.klb;
+                                      artTypen = klb;
                                       clearHersteller();
                                     } else if (hersteller == 'Koeber') {
-                                      globals.artTypen = globals.koeber;
+                                      artTypen = koeber;
                                       clearHersteller();
                                     } else if (hersteller == 'Küblböck') {
-                                      globals.artTypen = globals.kueblboeck;
+                                      artTypen = kueblboeck;
                                       clearHersteller();
                                     } else if (hersteller == 'KWG') {
-                                      globals.artTypen = globals.kwg;
+                                      artTypen = kwg;
                                       clearHersteller();
                                     } else if (hersteller == 'Martin Meier') {
-                                      globals.artTypen = globals.martinMeier;
+                                      artTypen = martinMeier;
                                       clearHersteller();
                                     } else if (hersteller == 'Mayer Bauz') {
-                                      globals.artTypen = globals.mayerBauz;
+                                      artTypen = mayerBauz;
                                       clearHersteller();
                                     } else if (hersteller == 'Murexin') {
-                                      globals.artTypen = globals.murexin;
+                                      artTypen = murexin;
                                       clearHersteller();
                                     } else if (hersteller == 'NBO') {
-                                      globals.artTypen = globals.nbo;
+                                      artTypen = nbo;
                                       clearHersteller();
                                     } else if (hersteller == 'Neuhofer') {
-                                      globals.artTypen = globals.neuhofer;
+                                      artTypen = neuhofer;
                                       clearHersteller();
                                     } else if (hersteller == 'Norwork') {
-                                      globals.artTypen = globals.norwork;
+                                      artTypen = norwork;
                                       clearHersteller();
                                     } else if (hersteller == 'Meister Werke') {
-                                      globals.artTypen = globals.meisterWerke;
+                                      artTypen = meisterWerke;
                                       clearHersteller();
                                     } else if (hersteller == 'Objectflor') {
-                                      globals.artTypen = globals.objectflor;
+                                      artTypen = objectflor;
                                       clearHersteller();
                                     } else if (hersteller == 'Ochs') {
-                                      globals.artTypen = globals.ochs;
+                                      artTypen = ochs;
                                       clearHersteller();
                                     } else if (hersteller == 'Oster') {
-                                      globals.artTypen = globals.oster;
+                                      artTypen = oster;
                                       clearHersteller();
                                     } else if (hersteller == 'Otto Chemie') {
-                                      globals.artTypen = globals.ottoChemie;
+                                      artTypen = ottoChemie;
                                       clearHersteller();
                                     } else if (hersteller == 'Pallmann') {
-                                      globals.artTypen = globals.pallmann;
+                                      artTypen = pallmann;
                                       clearHersteller();
                                     } else if (hersteller == 'Parigiani') {
-                                      globals.artTypen = globals.parigiani;
+                                      artTypen = parigiani;
                                       clearHersteller();
                                     } else if (hersteller == 'Scheffold') {
-                                      globals.artTypen = globals.scheffold;
+                                      artTypen = scheffold;
                                       clearHersteller();
                                     } else if (hersteller == 'Solum') {
-                                      globals.artTypen = globals.solum;
+                                      artTypen = solum;
                                       clearHersteller();
                                     } else if (hersteller == 'Pfahler') {
-                                      globals.artTypen = globals.pfahler;
+                                      artTypen = pfahler;
                                       clearHersteller();
                                     } else if (hersteller == 'PNZ') {
-                                      globals.artTypen = globals.pnz;
+                                      artTypen = pnz;
                                       clearHersteller();
                                     } else if (hersteller == 'Prinz Carl') {
-                                      globals.artTypen = globals.prinzCarl;
+                                      artTypen = prinzCarl;
                                       clearHersteller();
                                     } else if (hersteller == 'Project Floors') {
-                                      globals.artTypen = globals.projectFloors;
+                                      artTypen = projectFloors;
                                       clearHersteller();
                                     } else if (hersteller == 'Raab Karcher') {
-                                      globals.artTypen = globals.raabKarcher;
+                                      artTypen = raabKarcher;
                                       clearHersteller();
                                     } else if (hersteller == 'Reincke') {
-                                      globals.artTypen = globals.reincke;
+                                      artTypen = reincke;
                                       clearHersteller();
                                     } else if (hersteller == 'Repack') {
-                                      globals.artTypen = globals.repack;
+                                      artTypen = repack;
                                       clearHersteller();
                                     } else if (hersteller == 'Sonat') {
-                                      globals.artTypen = globals.sonat;
+                                      artTypen = sonat;
                                       clearHersteller();
                                     } else if (hersteller == 'Sonnenpartner') {
-                                      globals.artTypen = globals.sonnenpartner;
+                                      artTypen = sonnenpartner;
                                       clearHersteller();
                                     } else if (hersteller == 'Schimmer') {
-                                      globals.artTypen = globals.schimmer;
+                                      artTypen = schimmer;
                                       clearHersteller();
                                     } else if (hersteller == 'Schlau') {
-                                      globals.artTypen = globals.schlau;
+                                      artTypen = schlau;
                                       clearHersteller();
                                     } else if (hersteller == 'Schlingelhoff') {
-                                      globals.artTypen = globals.schlingelhoff;
+                                      artTypen = schlingelhoff;
                                       clearHersteller();
                                     } else if (hersteller == 'Schmitt B') {
-                                      globals.artTypen = globals.schmittB;
+                                      artTypen = schmittB;
                                       clearHersteller();
                                     } else if (hersteller == 'Schuhböcks') {
-                                      globals.artTypen = globals.schuhboecks;
+                                      artTypen = schuhboecks;
                                       clearHersteller();
                                     } else if (hersteller == 'Schuller') {
-                                      globals.artTypen = globals.schuller;
+                                      artTypen = schuller;
                                       clearHersteller();
                                     } else if (hersteller == 'Stauf') {
-                                      globals.artTypen = globals.stauf;
+                                      artTypen = stauf;
                                       clearHersteller();
                                     } else if (hersteller == 'Tagia') {
-                                      globals.artTypen = globals.tagia;
+                                      artTypen = tagia;
                                       clearHersteller();
                                     } else if (hersteller == 'Tapes Tools') {
-                                      globals.artTypen = globals.tapesTools;
+                                      artTypen = tapesTools;
                                       clearHersteller();
                                     } else if (hersteller == 'Taxis') {
-                                      globals.artTypen = globals.taxis;
+                                      artTypen = taxis;
                                       clearHersteller();
                                     } else if (hersteller == 'TFD') {
-                                      globals.artTypen = globals.tfd;
+                                      artTypen = tfd;
                                       clearHersteller();
                                     } else if (hersteller == 'Thede Witte') {
-                                      globals.artTypen = globals.thedeWitte;
+                                      artTypen = thedeWitte;
                                       clearHersteller();
                                     } else if (hersteller == 'Templer') {
-                                      globals.artTypen = globals.templer;
+                                      artTypen = templer;
                                       clearHersteller();
                                     } else if (hersteller == 'Thalhofer') {
-                                      globals.artTypen = globals.thalhofer;
+                                      artTypen = thalhofer;
                                       clearHersteller();
                                     } else if (hersteller == 'Upofloor') {
-                                      globals.artTypen = globals.upofloor;
+                                      artTypen = upofloor;
                                       clearHersteller();
                                     } else if (hersteller == 'Vorwerk') {
-                                      globals.artTypen = globals.vorwerk;
+                                      artTypen = vorwerk;
                                       clearHersteller();
                                     } else if (hersteller == 'Wakol') {
-                                      globals.artTypen = globals.wakol;
+                                      artTypen = wakol;
                                       clearHersteller();
                                     } else if (hersteller == 'Weitzer') {
-                                      globals.artTypen = globals.weitzer;
+                                      artTypen = weitzer;
                                       clearHersteller();
                                     } else if (hersteller == 'Windmöller') {
-                                      globals.artTypen = globals.windmoeller;
+                                      artTypen = windmoeller;
                                       clearHersteller();
                                     } else if (hersteller == 'Würth') {
-                                      globals.artTypen = globals.wuerth;
+                                      artTypen = wuerth;
                                       clearHersteller();
                                     } else if (hersteller == 'ZEG') {
-                                      globals.artTypen = globals.zeg;
+                                      artTypen = zeg;
                                       clearHersteller();
                                     } else if (hersteller == null) {
                                       setState(() {
                                         List<String> artTyp;
-                                        globals.artTypen = [];
-                                        artTyp = globals.artTypen;
+                                        artTypen = [];
+                                        artTyp = artTypen;
                                         log('LogELSE: $artTyp');
                                         List<String> kategorie;
-                                        globals.kategorien = [];
-                                        kategorie = globals.kategorien;
+                                        kategorien = [];
+                                        kategorie = kategorien;
                                         log('LogELSE: $kategorie');
                                         List<String> material;
-                                        globals.materialien = [];
-                                        material = globals.materialien;
+                                        materialien = [];
+                                        material = materialien;
                                         log('LogELSE: $material');
                                       });
                                     } else {
                                       setState(() {
                                         List<String> artTyp;
-                                        globals.artTypen = [];
-                                        artTyp = globals.artTypen;
+                                        artTypen = [];
+                                        artTyp = artTypen;
                                         log('LogELSE: $artTyp');
                                         List<String> kategorie;
-                                        globals.kategorien = [];
-                                        kategorie = globals.kategorien;
+                                        kategorien = [];
+                                        kategorie = kategorien;
                                         log('LogELSE: $kategorie');
                                         List<String> material;
-                                        globals.materialien = [];
-                                        material = globals.materialien;
+                                        materialien = [];
+                                        material = materialien;
                                         log('LogELSE: $material');
                                       });
                                     }
                                     setState(() {
-                                      globals.selectedArtikeltyp = null;
-                                      globals.selectedKategorie = null;
-                                      globals.selectedMaterial = null;
-                                      globals.selectedHersteller =
+                                      selectedArtikeltyp = null;
+                                      selectedKategorie = null;
+                                      selectedMaterial = null;
+                                      selectedHersteller =
                                           hersteller! as String?;
 
-                                      localHersteller =
-                                          globals.selectedHersteller;
-                                      log('Lieferant: ' +
-                                          globals.selectedHersteller!);
+                                      localHersteller = selectedHersteller;
+                                      log('Lieferant: ' + selectedHersteller!);
                                     });
                                   },
-                                  items: globals.herstellerListe,
+                                  items: herstellerListe,
                                 ),
                               ],
                             ),
@@ -578,104 +595,86 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                       ? "Wählen Sie bitte einen Artikeltyp aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: globals.selectedArtikeltyp,
-                                  onSaved: (value) =>
-                                      globals.selectedArtikeltyp,
+                                  value: selectedArtikeltyp,
+                                  onSaved: (value) => selectedArtikeltyp,
                                   onChanged: (artikeltyp) {
                                     if (artikeltyp == 'Fliesen') {
-                                      globals.kategorien =
-                                          globals.fliesenKategorie;
+                                      kategorien = fliesenKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Parkett') {
-                                      globals.kategorien =
-                                          globals.parkettKategorie;
+                                      kategorien = parkettKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Garten') {
-                                      globals.kategorien =
-                                          globals.gartenKategorie;
+                                      kategorien = gartenKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Profile') {
-                                      globals.kategorien =
-                                          globals.profileKategorie;
+                                      kategorien = profileKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Beläge') {
-                                      globals.kategorien =
-                                          globals.belaegeKategorie;
+                                      kategorien = belaegeKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Chemie') {
-                                      globals.kategorien =
-                                          globals.chemieKategorie;
+                                      kategorien = chemieKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Naturbaustoffe') {
-                                      globals.kategorien =
-                                          globals.naturbaustoffeKategorie;
+                                      kategorien = naturbaustoffeKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Holz') {
-                                      globals.kategorien =
-                                          globals.holzKategorie;
+                                      kategorien = holzKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Bau') {
-                                      globals.kategorien = globals.bauKategorie;
+                                      kategorien = bauKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Unterlagen') {
-                                      globals.kategorien =
-                                          globals.unterlagenKategorie;
+                                      kategorien = unterlagenKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Sockelleisten') {
-                                      globals.kategorien =
-                                          globals.sockelleistenKategorie;
+                                      kategorien = sockelleistenKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Stein') {
-                                      globals.kategorien =
-                                          globals.keineKategorie;
+                                      kategorien = keineKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp ==
                                         'Werkzeuge und Zubehör') {
-                                      globals.kategorien =
-                                          globals.werkzeugeZubehoerKategorie;
+                                      kategorien = werkzeugeZubehoerKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Schreinerei') {
-                                      globals.kategorien =
-                                          globals.keineKategorie;
+                                      kategorien = keineKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Glaserei') {
-                                      globals.kategorien =
-                                          globals.keineKategorie;
+                                      kategorien = keineKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == 'Metallbau') {
-                                      globals.kategorien =
-                                          globals.keineKategorie;
+                                      kategorien = keineKategorie;
                                       clearArtikeltyp();
                                     } else if (artikeltyp == null) {
                                       setState(() {
                                         List<String> glob;
-                                        globals.kategorien = [];
+                                        kategorien = [];
                                         clearArtikeltyp();
-                                        glob = globals.kategorien;
+                                        glob = kategorien;
                                         log('LogELSE: $glob');
                                       });
                                     } else {
                                       setState(() {
                                         List<String> glob;
-                                        globals.kategorien = [];
+                                        kategorien = [];
                                         clearArtikeltyp();
-                                        glob = globals.kategorien;
+                                        glob = kategorien;
                                         log('LogELSE: $glob');
                                       });
                                     }
                                     setState(() {
-                                      globals.selectedKategorie = null;
-                                      globals.selectedMaterial = null;
-                                      globals.selectedArtikeltyp =
+                                      selectedKategorie = null;
+                                      selectedMaterial = null;
+                                      selectedArtikeltyp =
                                           artikeltyp! as String?;
 
-                                      localArtikeltyp =
-                                          globals.selectedArtikeltyp;
-                                      log('Artikeltyp: ' +
-                                          globals.selectedArtikeltyp!);
+                                      localArtikeltyp = selectedArtikeltyp;
+                                      log('Artikeltyp: ' + selectedArtikeltyp!);
                                     });
                                   },
-                                  items: globals.artTypen.map((String value) {
+                                  items: artTypen.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -733,194 +732,144 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                       ? "Wählen Sie bitte eine Kategorie aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: globals.selectedKategorie,
-                                  onSaved: (value) => globals.selectedKategorie,
+                                  value: selectedKategorie,
+                                  onSaved: (value) => selectedKategorie,
                                   onChanged: (kategorie) {
                                     if (kategorie == 'Massivparkett') {
-                                      globals.materialien =
-                                          globals.massivparkettMaterial;
+                                      materialien = massivparkettMaterial;
                                     } else if (kategorie == 'Fertigparkett') {
-                                      globals.materialien =
-                                          globals.fertigparkettMaterial;
+                                      materialien = fertigparkettMaterial;
                                     } else if (kategorie ==
                                         'Massivholzdielen') {
-                                      globals.materialien =
-                                          globals.massivholzdielenMaterial;
+                                      materialien = massivholzdielenMaterial;
                                     } else if (kategorie == 'Holzarten') {
-                                      globals.materialien =
-                                          globals.holzartenMaterial;
+                                      materialien = holzartenMaterial;
                                     } else if (kategorie == 'Terassendielen') {
-                                      globals.materialien =
-                                          globals.terassendielenMaterial;
+                                      materialien = terassendielenMaterial;
                                     } else if (kategorie == 'Terassenplatten') {
-                                      globals.materialien =
-                                          globals.terassenplattenMaterial;
+                                      materialien = terassenplattenMaterial;
                                     } else if (kategorie == 'Möbel') {
-                                      globals.materialien =
-                                          globals.moebelMaterial;
+                                      materialien = moebelMaterial;
                                     } else if (kategorie == 'Bodenbeläge') {
-                                      globals.materialien =
-                                          globals.bodenbelaegeMaterial;
+                                      materialien = bodenbelaegeMaterial;
                                     } else if (kategorie == 'Fliesen') {
-                                      globals.materialien =
-                                          globals.fliesenProfileMaterial;
+                                      materialien = fliesenProfileMaterial;
                                     } else if (kategorie == 'Treppen') {
-                                      globals.materialien =
-                                          globals.treppenMaterial;
+                                      materialien = treppenMaterial;
                                     } else if (kategorie == 'Feinsteinzeug') {
-                                      globals.materialien =
-                                          globals.fliesenMaterial;
+                                      materialien = fliesenMaterial;
                                     } else if (kategorie == 'Steinzeug') {
-                                      globals.materialien =
-                                          globals.fliesenMaterial;
+                                      materialien = fliesenMaterial;
                                     } else if (kategorie == 'Naturstein') {
-                                      globals.materialien =
-                                          globals.fliesenMaterial;
+                                      materialien = fliesenMaterial;
                                     } else if (kategorie ==
                                         'Elastische Beläge') {
-                                      globals.materialien =
-                                          globals.elastischeBelaegeMaterial;
+                                      materialien = elastischeBelaegeMaterial;
                                     } else if (kategorie == 'Laminatboden') {
-                                      globals.materialien =
-                                          globals.laminatbodenMaterial;
+                                      materialien = laminatbodenMaterial;
                                     } else if (kategorie == 'Textile Beläge') {
-                                      globals.materialien =
-                                          globals.textileBelaegeMaterial;
+                                      materialien = textileBelaegeMaterial;
                                     } else if (kategorie == 'Untergrund') {
-                                      globals.materialien =
-                                          globals.untergrundMaterial;
+                                      materialien = untergrundMaterial;
                                     } else if (kategorie == 'Klebstoffe') {
-                                      globals.materialien =
-                                          globals.klebstoffeMaterial;
+                                      materialien = klebstoffeMaterial;
                                     } else if (kategorie == 'Dichtstoffe') {
-                                      globals.materialien =
-                                          globals.dichtstoffeMaterial;
+                                      materialien = dichtstoffeMaterial;
                                     } else if (kategorie ==
                                         'Verbundabdichtung') {
-                                      globals.materialien =
-                                          globals.verbundabdichtungMaterial;
+                                      materialien = verbundabdichtungMaterial;
                                     } else if (kategorie ==
                                         'Reinigungs- und Pflegemittel') {
-                                      globals.materialien =
-                                          globals.chemieMaterial;
+                                      materialien = chemieMaterial;
                                     } else if (kategorie == 'Parkettlacke') {
-                                      globals.materialien =
-                                          globals.chemieMaterial;
+                                      materialien = chemieMaterial;
                                     } else if (kategorie == 'Lackspray') {
-                                      globals.materialien =
-                                          globals.chemieMaterial;
+                                      materialien = chemieMaterial;
                                     } else if (kategorie == 'Innenfarbe') {
-                                      globals.materialien =
-                                          globals.innenfarbeMaterial;
+                                      materialien = innenfarbeMaterial;
                                     } else if (kategorie == 'Putze') {
-                                      globals.materialien =
-                                          globals.putzeNaturbaustoffeMaterial;
+                                      materialien = putzeNaturbaustoffeMaterial;
                                     } else if (kategorie == 'Parkettöle') {
-                                      globals.materialien =
-                                          globals.naturbaustoffeMaterial;
+                                      materialien = naturbaustoffeMaterial;
                                     } else if (kategorie == 'Holzlasur') {
-                                      globals.materialien =
-                                          globals.naturbaustoffeMaterial;
+                                      materialien = naturbaustoffeMaterial;
                                     } else if (kategorie == 'Holzschutzfarbe') {
-                                      globals.materialien =
-                                          globals.naturbaustoffeMaterial;
+                                      materialien = naturbaustoffeMaterial;
                                     } else if (kategorie == 'Pflegemittel') {
-                                      globals.materialien =
-                                          globals.naturbaustoffeMaterial;
+                                      materialien = naturbaustoffeMaterial;
                                     } else if (kategorie == 'Dämmstoffe') {
-                                      globals.materialien =
-                                          globals.daemmstoffeMaterial;
+                                      materialien = daemmstoffeMaterial;
                                     } else if (kategorie == 'Schnittholz') {
-                                      globals.materialien =
-                                          globals.holzMaterial;
+                                      materialien = holzMaterial;
                                     } else if (kategorie == 'Hobelware') {
-                                      globals.materialien =
-                                          globals.holzMaterial;
+                                      materialien = holzMaterial;
                                     } else if (kategorie ==
                                         'Plattenwerkstoffe') {
-                                      globals.materialien =
-                                          globals.plattenwerkstoffeMaterial;
+                                      materialien = plattenwerkstoffeMaterial;
                                     } else if (kategorie == 'Mörtel') {
-                                      globals.materialien = globals.bauMaterial;
+                                      materialien = bauMaterial;
                                     } else if (kategorie == 'Putze') {
-                                      globals.materialien = globals.bauMaterial;
+                                      materialien = bauMaterial;
                                     } else if (kategorie == 'Dämmschüttung') {
-                                      globals.materialien = globals.bauMaterial;
+                                      materialien = bauMaterial;
                                     } else if (kategorie == 'Isolierung') {
-                                      globals.materialien = globals.bauMaterial;
+                                      materialien = bauMaterial;
                                     } else if (kategorie == 'Estrich') {
-                                      globals.materialien = globals.bauMaterial;
+                                      materialien = bauMaterial;
                                     } else if (kategorie == 'Dämmung') {
-                                      globals.materialien =
-                                          globals.unterlagenMaterial;
+                                      materialien = unterlagenMaterial;
                                     } else if (kategorie == 'Entkopplung') {
-                                      globals.materialien =
-                                          globals.unterlagenMaterial;
+                                      materialien = unterlagenMaterial;
                                     } else if (kategorie == 'Abdichtung') {
-                                      globals.materialien =
-                                          globals.unterlagenMaterial;
+                                      materialien = unterlagenMaterial;
                                     } else if (kategorie == 'Holz massiv') {
-                                      globals.materialien =
-                                          globals.sockelleistenMaterial;
+                                      materialien = sockelleistenMaterial;
                                     } else if (kategorie == 'Holz furniert') {
-                                      globals.materialien =
-                                          globals.sockelleistenMaterial;
+                                      materialien = sockelleistenMaterial;
                                     } else if (kategorie == 'Holz ummantelt') {
-                                      globals.materialien =
-                                          globals.sockelleistenMaterial;
+                                      materialien = sockelleistenMaterial;
                                     } else if (kategorie == 'Metall') {
-                                      globals.materialien =
-                                          globals.sockelleistenMaterial;
+                                      materialien = sockelleistenMaterial;
                                     } else if (kategorie == 'Kunststoff') {
-                                      globals.materialien =
-                                          globals.sockelleistenMaterial;
+                                      materialien = sockelleistenMaterial;
                                     } else if (kategorie ==
                                         'Pinsel & Bürsten') {
-                                      globals.materialien =
-                                          globals.werkzeugeZubehoerMaterial;
+                                      materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Farbwalzen') {
-                                      globals.materialien =
-                                          globals.werkzeugeZubehoerMaterial;
+                                      materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Klebebänder') {
-                                      globals.materialien =
-                                          globals.werkzeugeZubehoerMaterial;
+                                      materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Abdeckmaterial') {
-                                      globals.materialien =
-                                          globals.werkzeugeZubehoerMaterial;
+                                      materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Schleifmittel') {
-                                      globals.materialien =
-                                          globals.werkzeugeZubehoerMaterial;
+                                      materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie ==
                                         'Keine Kategorie definiert') {
-                                      globals.materialien =
-                                          globals.keinMaterial;
+                                      materialien = keinMaterial;
                                     } else if (kategorie == null) {
                                       setState(() {
                                         List<String> glob;
-                                        globals.materialien = [];
-                                        glob = globals.materialien;
+                                        materialien = [];
+                                        glob = materialien;
                                         log('LogELSE: $glob');
                                       });
                                     } else {
                                       setState(() {
                                         List<String> glob;
-                                        globals.materialien = [];
-                                        glob = globals.materialien;
+                                        materialien = [];
+                                        glob = materialien;
                                         log('LogELSE: $glob');
                                       });
                                     }
                                     setState(() {
-                                      globals.selectedMaterial = null;
-                                      globals.selectedKategorie =
-                                          kategorie! as String?;
+                                      selectedMaterial = null;
+                                      selectedKategorie = kategorie! as String?;
 
-                                      localKategorie =
-                                          globals.selectedKategorie;
-                                      log('Kategorie: ' +
-                                          globals.selectedKategorie!);
+                                      localKategorie = selectedKategorie;
+                                      log('Kategorie: ' + selectedKategorie!);
                                     });
                                   },
-                                  items: globals.kategorien.map((String value) {
+                                  items: kategorien.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -953,17 +902,18 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 ),
                                 TextFormField(
                                   controller: artNrLieferantController,
+                                  //Only 8 Numbers Allowed
+                                  /*
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp(r'[0-9]')),
-                                    LengthLimitingTextInputFormatter(20),
-                                  ],
+                                    LengthLimitingTextInputFormatter(8),
+                                  ],*/
                                   style: const TextStyle(
                                       fontSize: 16.0, color: Colors.black),
-                                  decoration: buildInputDecorationImage(
-                                      'Artikelnummer eingeben',
-                                      const AssetImage("assets/barcode.png")),
+                                  decoration: buildInputDecorationIcon(
+                                      'Artikelnummer eingeben', Icons.numbers),
                                   onSaved: (value) => _artNrLieferant = value!,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -1045,7 +995,8 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: eanBarcodeController,
+                                  controller: eanBarcodeController
+                                    ..text = eanCodeGlobal,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
@@ -1057,7 +1008,8 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   decoration: buildInputDecorationImage(
                                       'EAN-Code eingeben',
                                       const AssetImage("assets/barcode.png")),
-                                  onSaved: (value) => _eanBarcode = value!,
+                                  onChanged: (value) => eanCodeGlobal = value,
+                                  onSaved: (value) => eanCodeGlobal = value!,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Bitte geben Sie einen EAN-Code ein';
@@ -1121,17 +1073,15 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                       ? "Wählen Sie bitte ein Material aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: globals.selectedMaterial,
-                                  onSaved: (value) => globals.selectedMaterial,
+                                  value: selectedMaterial,
+                                  onSaved: (value) => selectedMaterial,
                                   onChanged: (material) {
                                     setState(() {
-                                      globals.selectedMaterial =
-                                          material as String?;
-                                      localMaterial = globals.selectedMaterial;
+                                      selectedMaterial = material as String?;
+                                      localMaterial = selectedMaterial;
                                     });
                                   },
-                                  items:
-                                      globals.materialien.map((String value) {
+                                  items: materialien.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -1281,6 +1231,603 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           const SizedBox(
                             height: 20.0,
                           ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF1565C0),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "TestButton",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  setState(() {
+                                    log('-------------------------------');
+                                    log("Global Intern: $artNrIntern");
+                                    log("Local InternString: $artNrInternString");
+
+                                    APIService.getlastinternid();
+
+                                    log("PRINT");
+
+                                    log("New Global Intern: $artNrIntern");
+                                    log("New Local InternString: $artNrInternString");
+
+                                    showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                              title: const Center(
+                                                  child: Text(
+                                                'Hurra!',
+                                                style: TextStyle(
+                                                    color: Color(0xFF1565C0)),
+                                              )),
+                                              content:
+                                                  const Text('Test Alert Text'),
+                                              actions: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Center(
+                                                    child: Container(
+                                                      height: 36.0,
+                                                      width: 80.0,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        color: const Color(
+                                                            0xFF1565C0),
+                                                      ),
+                                                      child: MaterialButton(
+                                                          child: const Text(
+                                                            "OK",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          }),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ));
+                                  });
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF74D175),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "QR Code",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Stack(
+                                                    children: [
+                                                      QRScannerScreen(
+                                                          overlayColour: Colors
+                                                              .black
+                                                              .withOpacity(
+                                                                  0.5)),
+                                                    ],
+                                                  ),
+                                              fullscreenDialog: true))
+                                      .then((value) => setState(() {
+                                            if (qrcodeResult != null) {
+                                            } else {}
+                                          }));
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFFFFD700),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "Barcode",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Stack(
+                                                    children: [
+                                                      BarcodeScannerScreen(
+                                                          overlayColour: Colors
+                                                              .black
+                                                              .withOpacity(
+                                                                  0.5)),
+                                                    ],
+                                                  ),
+                                              fullscreenDialog: true))
+                                      .then((value) => setState(() {
+                                            if (barcodeResult != null) {
+                                              eanCodeGlobal = barcodeResult!;
+                                              _eanBarcode = barcodeResult;
+                                            } else {
+                                              eanCodeGlobal = '';
+                                            }
+                                          }));
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          //Test Print Button
+                          /**
+                            Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "Printing",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  log("Button pressed");
+
+                                  const PaperSize paper = PaperSize.mm80;
+                                  final profile =
+                                      await CapabilityProfile.load();
+                                  final printer =
+                                      NetworkPrinter(paper, profile);
+
+                                  //POS Printer
+                                  final PosPrintResult res = await printer
+                                      .connect('192.168.188.115', port: 9500);
+
+                                  //Office Printer
+                                  //final PosPrintResult res = await printer.connect('192.168.188.71', port: 9100);
+
+                                  if (res == PosPrintResult.success) {
+                                    networkPrinter(printer);
+                                    printer.disconnect();
+                                  }
+
+                                  print('Print result: ${res.msg}');
+                                }),
+                          ),*/
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "Printing",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  log('PrinterIP: $printerIp');
+                                  log('PrinterPort: $printerPort');
+                                  _printLabel();
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF364975),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "Update",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  Artikel model = Artikel(
+                                    lieferant: 'Admonter',
+                                    artikeltyp: 'Parkett',
+                                    kategorie: 'Holzarten',
+                                    artnrlieferant: '987654321',
+                                    lieferantandartikelnummer:
+                                        'Admonter987654321',
+                                    artnrintern: '10000006',
+                                    eancode: '12345678',
+                                    bezeichnung: 'Bezeichnung',
+                                    material: 'Eiche',
+                                    dimension: 'Dimension',
+                                    haptik: 'Haptik',
+                                    optik: 'Optik',
+                                    sortierung: 'Sortierung',
+                                    vpeeinzeln: 'test',
+                                    einzelneinheit: 'Container',
+                                    vpebund: 'test',
+                                    bundeinheit: 'Container',
+                                    eigenschaft: 'Eigenschaft',
+                                    beanspruchungsklasse: '0',
+                                    verfugbarkeit: 'Lager',
+                                    einkaufspreis: '1',
+                                    verkaufspreiseins: '2',
+                                    verkaufspreiszwei: '3',
+                                    verkaufspreisdrei: '4',
+                                    ausstellplatz: 'test',
+                                    //imageName: imageName,
+                                  );
+
+                                  APIService.updateartikel(
+                                          model, model.artnrintern)
+                                      .then(
+                                    (response) {
+                                      setState(() {
+                                        //isApiCallProcess = false;
+                                      });
+
+                                      if (response.data != null &&
+                                          image != null) {
+                                        log("Bild wurde hochgeladen");
+                                        log('Intern Bild: $artNrInternString');
+                                        showDialog(
+                                            context: context,
+                                            barrierDismissible: true,
+                                            builder: (BuildContext context) =>
+                                                AlertDialog(
+                                                  title: const Center(
+                                                      child: Text(
+                                                    'Hurra!',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFFF76A25)),
+                                                  )),
+                                                  content: const Text(
+                                                      'Der Artikel wurde erfolgreich angelegt'),
+                                                  actions: <Widget>[
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Center(
+                                                        child: Container(
+                                                          height: 36.0,
+                                                          width: 80.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0),
+                                                            color: const Color(
+                                                                0xFFF76A25),
+                                                          ),
+                                                          child: MaterialButton(
+                                                              child: const Text(
+                                                                "OK",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ));
+                                      } else if (response.data != null &&
+                                          image == null) {
+                                        log('Intern ohne Bild: $artNrInternString');
+                                        showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) =>
+                                                AlertDialog(
+                                                  title: const Center(
+                                                      child: Text(
+                                                    'Hurra, aber Achtung!',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFFF76A25)),
+                                                  )),
+                                                  content: const Text(
+                                                      'Der Artikel wurde ohne Bild hochgeladen, da keines ausgewählt/aufgenommen wurde'),
+                                                  actions: <Widget>[
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Center(
+                                                        child: Container(
+                                                          height: 36.0,
+                                                          width: 80.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0),
+                                                            color: const Color(
+                                                                0xFFF76A25),
+                                                          ),
+                                                          child: MaterialButton(
+                                                              child: const Text(
+                                                                "OK",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ));
+                                      } else {
+                                        log("Bild hochladen fehlgeschlagen");
+                                        showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) =>
+                                                AlertDialog(
+                                                  title: const Center(
+                                                      child: Text(
+                                                    'Oops, ein Fehler ist aufgetreten!',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFFF76A25)),
+                                                  )),
+                                                  content:
+                                                      Text(response.message),
+                                                  actions: <Widget>[
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Center(
+                                                        child: Container(
+                                                          height: 36.0,
+                                                          width: 80.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0),
+                                                            color: const Color(
+                                                                0xFFF76A25),
+                                                          ),
+                                                          child: MaterialButton(
+                                                              child: const Text(
+                                                                "OK",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ));
+                                      }
+                                    },
+                                  );
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "FindItem",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  int testint = 10000009;
+                                  APIService.findartikel(testint).then(
+                                    (response) {
+                                      setState(() {
+                                        //isApiCallProcess = false;
+                                      });
+
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const FindItemScreen()));
+                                    },
+                                  );
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "GETARTIKEL",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  int testint = 10000000;
+                                  APIService.findartikel(testint).then(
+                                    (response) {
+                                      setState(() {
+                                        //isApiCallProcess = false;
+                                      });
+
+                                      showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) =>
+                                              AlertDialog(
+                                                title: const Center(
+                                                    child: Text(
+                                                  Config.appName,
+                                                  style: TextStyle(
+                                                      color: Color(0xFFF76A25)),
+                                                )),
+                                                content:
+                                                    const Text("GETARTIKEL!"),
+                                                actions: <Widget>[
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Center(
+                                                      child: GestureDetector(
+                                                          child:
+                                                              const Text("OK"),
+                                                          onTap: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          }),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ));
+                                    },
+                                  );
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "TESTFILE",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MyHomePageTest(
+                                                  title: 'BLA'),
+                                          fullscreenDialog: true));
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 56.0,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: const Color(0xFF9E1B32),
+                            ),
+                            child: MaterialButton(
+                                child: const Text(
+                                  "Lieferant+Nr",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 23.0,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  if (_artNrLieferant != null &&
+                                      localHersteller != null) {
+                                    setState(() {
+                                      localHersteller = selectedHersteller;
+                                      _artNrLieferant =
+                                          artNrLieferantController.text;
+                                      lieferantandartikelnummer =
+                                          (localHersteller! +
+                                              artNrLieferantController.text);
+
+                                      log('Lieferant: $localHersteller');
+                                      log('Artikelnummer_Lieferant: $_artNrLieferant');
+                                      log('lieferantandartikelnummer: $lieferantandartikelnummer');
+                                    });
+                                  } else {
+                                    log("ArtNrLieferant ist leer");
+                                  }
+                                }),
+                          ),
                         ],
                       ),
                     ),
@@ -1367,10 +1914,29 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   InputDecoration buildInputDecorationImage(String hint, AssetImage icon) {
     return InputDecoration(
       prefixIcon: Transform.scale(
-        scale: 0.5,
-        child: ImageIcon(
-          icon,
-          color: Colors.black,
+        scale: 1.2,
+        child: IconButton(
+          icon: ImageIcon(
+            icon,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Stack(
+                              children: [
+                                BarcodeScannerScreen(
+                                    overlayColour:
+                                        Colors.black.withOpacity(0.5)),
+                              ],
+                            ),
+                        fullscreenDialog: true))
+                .then(onGoBack);
+            /**.then((value) => setState(() {
+            _eanBarcode = barcodeResult;
+            }));*/
+          },
         ),
       ),
       hintText: hint,
@@ -1395,6 +1961,17 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     );
   }
 
+  FutureOr onGoBack(dynamic value) {
+    setState(() {
+      if (barcodeResult != null) {
+        eanCodeGlobal = barcodeResult!;
+        _eanBarcode = barcodeResult;
+      } else {
+        eanCodeGlobal = '';
+      }
+    });
+  }
+
   Widget buildButtonContainer() {
     return Container(
       height: 56.0,
@@ -1415,13 +1992,15 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               setState(() {
-                localHersteller = globals.selectedHersteller;
-                localArtikeltyp = globals.selectedArtikeltyp;
-                localKategorie = globals.selectedKategorie;
+                localHersteller = selectedHersteller;
+                localArtikeltyp = selectedArtikeltyp;
+                localKategorie = selectedKategorie;
                 _artNrLieferant = artNrLieferantController.text;
+                lieferantandartikelnummer =
+                    (localHersteller! + artNrLieferantController.text);
                 //_artNrIntern = artNrInternController.text;
-                _eanBarcode = eanBarcodeController.text;
-                localMaterial = globals.selectedMaterial;
+                _eanBarcode = eanCodeGlobal;
+                localMaterial = selectedMaterial;
                 _dimension = dimensionController.text;
                 _haptik = haptikController.text;
                 _optik = optikController.text;
@@ -1430,6 +2009,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 log('Artikeltyp: $localArtikeltyp');
                 log('Kategorie: $localKategorie');
                 log('Artikelnummer_Lieferant: $_artNrLieferant');
+                log('Lieferant + Artikelnummer: $lieferantandartikelnummer');
                 //log('Artikelnummer_Intern: $_artNrIntern');
                 log('EAN Barcodenummer: $_eanBarcode');
                 log('Material: $localMaterial');
@@ -1444,11 +2024,17 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 haptikController.clear();
                 optikController.clear();
 
-                globals.selectedHersteller = null;
-                globals.selectedArtikeltyp = null;
-                globals.selectedKategorie = null;
-                globals.selectedMaterial = null;
+                selectedHersteller = null;
+                selectedArtikeltyp = null;
+                selectedKategorie = null;
+                selectedMaterial = null;
+                eanCodeGlobal = '';
+                barcodeResult = null;
               });
+              artNrInternString = artNrInternPlus.toString();
+              log("Intern ID String Print: $artNrInternString");
+
+              _printLabel();
               _uploadImage();
 
               AddartikelRequestModel model = AddartikelRequestModel(
@@ -1456,6 +2042,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 artikeltyp: localArtikeltyp,
                 kategorie: localKategorie,
                 artnrlieferant: _artNrLieferant,
+                lieferantandartikelnummer: lieferantandartikelnummer,
                 eancode: _eanBarcode,
                 material: localMaterial,
                 dimension: _dimension,
@@ -1475,6 +2062,10 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
 
                   if (response.data != null && image != null) {
                     log("Bild wurde hochgeladen");
+                    //_uploadImage();
+                    getInternID();
+
+                    log('Intern Bild: $artNrInternString');
 
                     showDialog(
                         context: context,
@@ -1482,7 +2073,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                         builder: (BuildContext context) => AlertDialog(
                               title: const Center(
                                   child: Text(
-                                Config.appName,
+                                'Hurra!',
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
@@ -1491,23 +2082,38 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Center(
-                                    child: GestureDetector(
-                                        child: const Text("OK"),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                        }),
+                                    child: Container(
+                                      height: 36.0,
+                                      width: 80.0,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        color: const Color(0xFFF76A25),
+                                      ),
+                                      child: MaterialButton(
+                                          child: const Text(
+                                            "OK",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          }),
+                                    ),
                                   ),
                                 ),
                               ],
                             ));
-                  } else if (image == null) {
+                  } else if (response.data != null && image == null) {
+                    getInternID();
+                    log('Intern ohne Bild: $artNrInternString');
                     showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) => AlertDialog(
                               title: const Center(
                                   child: Text(
-                                Config.appName,
+                                'Hurra, aber Achtung!',
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
@@ -1516,24 +2122,38 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Center(
-                                    child: GestureDetector(
-                                        child: const Text("OK"),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                        }),
+                                    child: Container(
+                                      height: 36.0,
+                                      width: 80.0,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        color: const Color(0xFFF76A25),
+                                      ),
+                                      child: MaterialButton(
+                                          child: const Text(
+                                            "OK",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          }),
+                                    ),
                                   ),
                                 ),
                               ],
                             ));
                   } else {
                     log("Bild hochladen fehlgeschlagen");
+                    getInternID();
                     showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) => AlertDialog(
                               title: const Center(
                                   child: Text(
-                                Config.appName,
+                                'Oops, ein Fehler ist aufgetreten!',
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: Text(response.message),
@@ -1541,11 +2161,24 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Center(
-                                    child: GestureDetector(
-                                        child: const Text("OK"),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                        }),
+                                    child: Container(
+                                      height: 36.0,
+                                      width: 80.0,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        color: const Color(0xFFF76A25),
+                                      ),
+                                      child: MaterialButton(
+                                          child: const Text(
+                                            "OK",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          }),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1588,6 +2221,37 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
     var res = await request.send();
 
     return res.statusCode;
+  }
+
+  Future _printLabel() async {
+    const PaperSize paper = PaperSize.mm80;
+    final profile = await CapabilityProfile.load();
+    final printer = NetworkPrinter(paper, profile);
+
+    //Label Printer with static IP and Port
+    //final PosPrintResult res = await printer.connect('192.168.188.115', port: 9500);
+
+    //Office Printer
+    //final PosPrintResult res = await printer.connect('192.168.188.71', port: 9100);
+
+    //Label Printer with variable IP and Port
+    final PosPrintResult res =
+        await printer.connect(printerIp, port: printerPort);
+
+    if (res == PosPrintResult.success) {
+      networkPrinter(printer);
+      printer.disconnect();
+    }
+
+    print('Print result: ${res.msg}');
+  }
+
+  void networkPrinter(NetworkPrinter printer) {
+    printer.text(
+        '^{^XA ^JMB ^CI27 ^FO397,50^GFA,42300,42300,100,7kJFC,kKFE,::::::FF8k03FE,FFkG03FE,FFkG01FE,::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::FFkG01FEiL01FC,FFkG01FEiL03FC,FFkG01FEiL03FE,:FFkH0FCiL03FE,FFkH0FCiL07FE,FFnP07FE,::::FFnP03FE,:FFnP03FC,FFnP01,FFhY0FEjR0FC,FFhX01FFjQ03FE,FFhX03FFjQ03FE,FFhX03FFjQ07FE,:::::::::FFhX03FFhN0LFCgV07FE,FFU07OFCP088I01LFCL0601IFEO0CP0OFQ06CI07OF8R03OFCN0C01IF8N018J01BJ0308W098FFT07QFCN01FF001NF8J01VFEN01QF8N03FE001PFEQ03QFEL03VFEJ03FEI07FEV07FEFFS03SFCM01FF00PFJ01WFM01SFN03FE00RFCO01SFCK03VFEJ03FEI07FFV0FFCFFS0UFM03FF01PFCI03WFM07SFEM03FF03RFEO07TFK03WFJ07FEI07FF8T01FFCFFR01UF8L03FF07PFEI03WFL01UFM03FF07SF8M01UFCJ03WFJ07FEI03FF8T01FFCFFR03UFEL03FF0RF8001WFL03UFCL03FE0TFCM03UFEJ03WFJ07FEI01FFCT03FF8FFR07VFL03FF0RF8001WFL0VFEL03FE0TFEM07VFJ03VFEJ07FEI01FFCT03FF8FFR0WF8K03FF1RFC001WFK01WFL03FE1TFEM0WF8I03VFEJ07FEJ0FFET07FF,FFQ01JFCM0KF8K03FF3IFCJ0JFE001VFEK01KFM0KF8K03FE3JFCJ07KFM0JFEM07JFCI01VFCJ07FEJ0FFET0FFE,FFQ01IF8O03IFCK03KFM07FFEL07FFV03IFCO03IFCK03FF7FFEN0JF8K01IF8O01IFEM0IFU07FEJ07FFT0FFE,FFQ03FFEQ07FFCK03JFCM01IFL03FFV07FFEQ0IFEK03JFEO01IF8K01IFQ07FFEM07FEU07FEJ07FF8R01FFC,FFQ03FFCQ03FFEK03JFO0IFL03FFV07FF8Q03FFEK03JF8P07FFCK03FFCQ01FFEM07FEU07FEJ03FF8R01FFC,FFQ03FF8R0FFEK03IFCO07FF8K03FFV0IFR01FFEK03IFEQ03FFCK03FFCR0IFM07FEU07FEJ03FFCR03FF8,FFQ03FFS0IFK03IF8O03FF8K03FFV0FFES0IFK03IFCQ01FFCK03FF8R07FFM07FEU07FEJ01FFCR03FF8,FFQ07FFS07FFK03IFP03FF8K03FFU01FFCS07FF8J03IFS0FFEK03FF8R03FFM07FEU07FEK0FFER07FF,FFQ07FFS07FFK03FFEP01FF8K03FFU01FFCS03FF8J03FFES0FFEK03FFS03FFM07FEU07FEK0FFER0FFE,FFQ07FFS03FFK03FFCP01FF8K03FFU01FF8S03FF8J03FFES0FFEK03FFS03FF8L07FEU07FEK07FFR0FFE,FFQ07FFS03FFK03FFCQ0FFCK03FFU01FF8S01FF8J03FFCS07FEK03FFS03FF8L07FEU07FEK03FF8P01FFC,FFQ03FES03FFK03FFCQ0FFCK03FFU03FFT01FF8J03FF8S07FEK03FES01FF8L07FEU07FEK03FF8P01FFC,FFgM01FFK03FF8Q0FFCK03FFU03FFU0FFCJ03FF8S03FEgG01FF8L07FEU07FEK03FFCP03FF8,FFgM01FFK03FF8Q0FFCK03FFU03FFU0FFCJ03FF8S03FEgG01FF8L07FEU07FEK01FFCP07FF8,FFgM01FFK03FFR0FFCK03FFU03FFU0FFCJ03FFT03FEgG01FF8L07FEU07FEL0FFEP07FF,FFgM01FFK03FFR0FFCK03FFU07FEU0FFCJ03FFT03FFgG01FF8L07FEU07FEL0FFEP0FFE,FFgM01FFK03FFR0FFCK03FFU07FEU0FFCJ03FFT03FFgG01FF8L07FEU07FEL07FFP0FFE,FFgM01FFK03FFR0FFCK03FFU07FEU0FFCJ03FFT03FFgG01FF8L07FEU07FEL07FFO01FFC,FFgM01FFK03FFR0FFCK03FEU07FFU0FFCJ03FFT03FFgG01FF8L07FEU07FEL03FF8N01FFC,FFU01MFCI01FFK03FFR0FFCK03FEU07FF8S01FFEJ03FFT03FFP0MFEI01FF8L07FEU07FEL01FFCN03FF8,FFS01QFC01FFK03FFR07F8K03FEU07YFEJ03FFT03FFN0QFC01FF8L07FCU07FEL01FFCN03FF,FFR01SF81FFK03FFg03FEU07YFEJ03FFT03FFM0SF81FF8L07FCU07FEM0FFEN07FF,FFR07SFC1FFK03FFg03FEU07YFEJ03FFT03FFL03SFE1FF8L07FCU07FEM0FFEN0FFE,FFQ01TFE1FFK03FFg03FEU07YFEJ03FFT03FFL0UF0FF8L07FCU07FEM07FFN0FFE,FFQ01UF1FFK03FFg03FEU07YFEJ03FFT03FFK01UF9FF8L07FCU07FEM07FF8L01FFC,FFQ07XFK03FFg03FEU07YFCJ03FFT03FFK03XF8L07FCU07FEM03FF8L01FFC,FFQ07XFK03FFg03FEU07YFCJ03FFT03FFK07XF8L07FCU07FEM01FFCL03FF8,FFQ0NFI07MFK03FFg03FEU07YF8J03FFT03FFK07MF800NF8L07FCU07FEM01FFCL03FF,FFQ0JF8O03JFK03FFg03FEU07FFgH03FFT03FFK0JFCO01JF8L07FCU07FEN0FFEL07FF,FFP01IFCQ07IFK03FFg03FEU07FEgH03FFT03FFK0IFCQ03IF8L07FCU07FEN0FFEL0FFE,FFP01IFR01IFK03FFg03FEO03F8I07FEgH03FFT03FFK0IFS0IF8L07FCO07FJ07FEN07FFL0FFE,FFP01FFES0IFK03FFg03FEO07F8I07FEgH03FFT03FFJ01FFES0IF8L07FCO0FFJ07FEN03FF8J01FFC,FFP03FFCS07FFK03FFg07FEO07F8I07FEgH03FFT03FFJ01FFCS03FF8L07FCO0FFJ07FEN03FF8J01FF8,FFP03FF8S03FFK03FFg07FEO0FF8I07FEgH03FFT03FFJ01FF8S03FF8L07FCO0FF8I07FEN03FFCJ03FF8,FFP03FF8S03FFK03FFg07FEO07F8I07FEgH03FFT03FFJ01FF8S03FF8L07FCO0FF8I07FEN01FFCJ03FF8,FFP03FFT01FFK03FFg07FEO07F8I07FFgH03FFT03FFJ03FF8S01FF8L07FCO0FFJ07FEO0FFEJ07FF,FFP03FFT01FFK03FFg07FEO07F8I07FFgH03FFT03FFJ03FF8S01FF8L07FCO0FFJ07FEO0FFEJ0FFE,FFP03FFT01FFK03FFg07FEO07F8I03FFgH03FFT03FFJ03FF8S01FF8L07FCO0FFJ07FEO07FFJ0FFE,FFP03FFT01FFK03FFg07FEO07F8I03FFgH03FFT03FFJ03FF8S01FF8L07FCO0FFJ07FEO03FF8001FFC,FFP03FFT01FFK03FFg07FEO07F8I03FFU07F8J03FFT03FFJ03FF8S01FF8L07FCO0FFJ07FEO03FF8001FF8,FFP03FFT01FFK03FFg03FEO0FF8I03FF8T0FFCJ03FFT03FFJ03FF8S01FF8L07FEN01FFJ07FEO01FFC003FF8,FFP03FFT01FFK03FFg03FFO0FF8I01FF8T0FFCJ03FFT03FFJ03FF8S01FF8L07FEN01FFJ07FEO01FFC007FF,FFP03FFT03FFK03FFg03FFO0FF8I01FF8T0FFCJ03FFT03FFJ01FF8S01FF8L07FEN01FFJ07FEP0FFE007FF,FFP03FF8S03FFK03FFg03FFO0FF8I01FFCS01FFCJ03FFT03FFJ01FF8S03FF8L07FEN01FFJ07FEP0IF007FE,FFP03FF8S07FFK03FFg03FF8N0FF8I01FFES03FF8J03FFT03FFJ01FF8S03FF8L07FFN01FFJ07FEP07FF00FFE,FFP03FFCS07FFK03FFg03FF8M01FF8J0FFES03FF8J03FFT03FFJ01FFCS07FF8L07FFN03FFJ07FEP07FF01FFC,FFP01FFCS0IFK03FFg03FFCM03FF8J0IF8R07FF8J03FFT03FFJ01FFES0IF8L07FF8M03FFJ07FEP03FF81FFC,FFP01FFER03IFK03FFg03FFEM03FF8J07FFCQ01IFK03FFT03FFK0IFR01IF8L03FFCM07FFJ07FEP01FFC3FF8,FFQ0IF8Q0JFK03FFg01IFM0IFK07IFQ07FFEK03FFT03FFK0IF8Q07IF8L03FFEL01FFEJ07FEP01FFC3FF,FFQ0IFCP03JFK03FFg01IFCK01IFK03IFCO03IFEK03FFT03FFK0IFEP01JF8L01IF8K03FFEJ07FEQ0FFEIF,FFQ07JF8L07LFK03FFgG0KFI03IFEK01KFCK01KFCK03FFT03FFK07JFCL01LF8L01JFEI07IFCJ07FEQ07JFE,FFQ07XFK03FFgG07QFEL0WF8K03FFT03FFK03XF8M0RFCJ07FEQ07JFE,FFQ03UFBFFK03FFgG03QFCL07VFL03FFT03FFK03XF8M07QF8J07FEQ07JFC,FFQ01UF1FFK03FFgG01QF8L03UFEL03FFT03FFK01UF0FF8M03QFK07FEQ03JFC,FFR0TFE1FFK03FFgH0QFM01UFCL03FFT03FFL07TF0FF8M01PFEK07FEQ01JF8,FFR07SFC1FFK03FFgH07OFCN03SFEM03FFT03FEL03SFE1FF8N07OFCK07FEQ01JF,FFR01SF81FFK01FFgH01OF8O0SF8M03FET03FEM0SF80FF8N03OFL03FER0JF,FFS01QFC00FEK01FEgI01MFCQ0QFO01FCT01FEM01QFC007FP07MF8L01FCR07FFE,FFT01OFCgW01KFCS03MFCgY0OFCV07KF8,FFW03JFhH03FFX0IF8hI07JF8g07FE,FF,::::::::::::::::FF8,kKFE,kLF8,kLFC,::::kLF8,^FS ^FX ^CFA,20 ^FO350,340^FH^AFN,28,18^FDArtikeltyp: $localArtikeltyp^FS ^FO349,340^FH^AFN,28,18^FDArtikeltyp:^FS ^FO351,340^FH^AFN,28,18^FDArtikeltyp:^FS ^FO352,340^FH^AFN,28,18^FDArtikeltyp:^FS  ^FO350,380^AFN,28,18^FDKategorie: $localKategorie^FS ^FO349,380^AFN,28,18^FDKategorie:^FS ^FO351,380^AFN,28,18^FDKategorie:^FS ^FO352,380^AFN,28,18^FDKategorie:^FS ^FO350,420^AFN,28,18^FDArtikelnummer: $artNrInternString^FS ^FO349,420^AFN,28,18^FDArtikelnummer:^FS ^FO351,420^AFN,28,18^FDArtikelnummer:^FS ^FO352,420^AFN,28,18^FDArtikelnummer:^FS ^FO100,160^BQN,2,10^FDQA $artNrInternString^FS ^XZ}');
+    printer.feed(6);
+    /*printer.text('^{^XA^FX^CFA,30^FO50,300^FDJohn Doe^FS^XZ}');
+    printer.feed(6);*/
   }
 
   _uploadImage() async {
@@ -1742,15 +2406,21 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
         MaterialPageRoute(
             builder: (context) => const LoginScreen(), fullscreenDialog: true));
   }
+
+  void getInternID() {
+    setState(() {
+      APIService.getlastinternid();
+    });
+  }
 }
 
 void clearHersteller() {
-  globals.kategorien = [];
-  globals.materialien = [];
+  kategorien = [];
+  materialien = [];
 }
 
 void clearArtikeltyp() {
-  globals.materialien = [];
+  materialien = [];
 }
 
 class DropdownAusstellungsplatz extends StatefulWidget {

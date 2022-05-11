@@ -414,6 +414,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       '/home',
                       (route) => false,
                     );
+                    APIService.getlastinternid();
                   } else {
                     showDialog(
                         context: context,

@@ -33,6 +33,7 @@ class Data {
     required this.artikeltyp,
     required this.kategorie,
     required this.artnrlieferant,
+    required this.lieferantandartikelnummer,
     required this.eancode,
     required this.material,
     required this.dimension,
@@ -44,6 +45,7 @@ class Data {
   late final String? artikeltyp;
   late final String? kategorie;
   late final String? artnrlieferant;
+  late final String? lieferantandartikelnummer;
   late final String? eancode;
   late final String? material;
   late final String? dimension;
@@ -56,6 +58,7 @@ class Data {
     artikeltyp = json['artikeltyp'];
     kategorie = json['kategorie'];
     artnrlieferant = json['artnrlieferant'];
+    lieferantandartikelnummer = json['lieferantandartikelnummer'];
     eancode = json['eancode'];
     material = json['material'];
     dimension = json['dimension'];
@@ -70,6 +73,7 @@ class Data {
     _data['artikeltyp'] = artikeltyp;
     _data['kategorie'] = kategorie;
     _data['artnrlieferant'] = artnrlieferant;
+    _data['lieferantandartikelnummer'] = lieferantandartikelnummer;
     _data['eancode'] = eancode;
     _data['material'] = material;
     _data['dimension'] = dimension;

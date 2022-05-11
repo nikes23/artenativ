@@ -1,7 +1,11 @@
-import 'package:artenativ/login.dart';
-import 'package:artenativ/services/shared_service.dart';
+import 'dart:developer';
+
+import 'package:artenativ/settingsdevice.dart';
 import 'package:flutter/material.dart';
-import 'package:artenativ/additemsextend.dart';
+import 'package:artenativ/settingsbelowside.dart';
+import 'package:artenativ/services/shared_service.dart';
+
+import 'globals.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -11,6 +15,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  String belowTitle = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,340 +42,118 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       //drawer: const ChatDrawer(),
-      body: getListView(context),
+      body: SafeArea(
+        child: Center(
+            child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0),
+              child: Column(
+                children: [
+                  settingsTile(
+                      'Benutzerkonto',
+                      Icons.account_box,
+                      const SettingsBelowScreen(
+                        title: 'Benutzerkonto',
+                      )),
+                  settingsTile(
+                      'Privatsphäre',
+                      Icons.security,
+                      const SettingsBelowScreen(
+                        title: 'Privatsphäre',
+                      )),
+                  settingsTile(
+                      'Sicherheit',
+                      Icons.lock,
+                      const SettingsBelowScreen(
+                        title: 'Sicherheit',
+                      )),
+                  settingsTile(
+                      'Design',
+                      Icons.color_lens,
+                      const SettingsBelowScreen(
+                        title: 'Design',
+                      )),
+                  settingsTile(
+                      'Ton',
+                      Icons.notifications_active,
+                      const SettingsBelowScreen(
+                        title: 'Ton',
+                      )),
+                  settingsTile(
+                      'Geräte',
+                      Icons.devices_other,
+                      const SettingsDeviceScreen(
+                        title: 'Geräte',
+                      )),
+                  settingsTile(
+                      'Nachrichten',
+                      Icons.chat,
+                      const SettingsBelowScreen(
+                        title: 'Nachrichten',
+                      )),
+                  settingsTile(
+                      'Medien',
+                      Icons.landscape,
+                      const SettingsBelowScreen(
+                        title: 'Medien',
+                      )),
+                  settingsTile(
+                      'Fehlermeldung',
+                      Icons.bug_report,
+                      const SettingsBelowScreen(
+                        title: 'Fehlermeldung',
+                      )),
+                  settingsTile(
+                      'Über uns',
+                      Icons.info_outline,
+                      const SettingsBelowScreen(
+                        title: 'Über uns',
+                      )),
+                ],
+              ),
+            ),
+          ],
+        )),
+      ),
     );
   }
-}
 
-Widget getListView(BuildContext context) {
-  return SafeArea(
-    child: Center(
-        child: ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 0),
-          child: Column(
-            children: [
-              SizedBox(
-                width: 600,
-                child: Card(
-                  //color: Theme.of(context).primaryColor,
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.account_box,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                      title: const Text(
-                        'Account',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+  settingsTile(String title, IconData icon, StatefulWidget side) {
+    return SizedBox(
+      width: 600,
+      child: Card(
+        //color: Theme.of(context).primaryColor,
+        color: const Color(0xFFF76A25),
+        elevation: 10,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+          child: ListTile(
+            leading: Icon(
+              icon,
+              size: 30,
+              color: Colors.white,
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(color: Colors.white),
+            ),
+            //subtitle: Text("Beautiful View !"),
+            trailing: const Icon(
+              Icons.navigate_next,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => side,
                 ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.security,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Privacy',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.lock,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Security',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.color_lens,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Design',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.notifications_active,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Sound',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.chat,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Chat',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.landscape,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Media',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.bug_report,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: const Text(
-                        'Bugfix',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 600,
-                child: Card(
-                  color: const Color(0xFFF76A25),
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 0.0, right: 8.0, left: 10.0, bottom: 0.0),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.info_outline,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                      title: const Text(
-                        'Über uns',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      //subtitle: Text("Beautiful View !"),
-                      trailing: const Icon(
-                        Icons.navigate_next,
-                        color: Colors.white,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
-      ],
-    )),
-  );
+      ),
+    );
+  }
 }

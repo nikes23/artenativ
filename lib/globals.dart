@@ -8,8 +8,10 @@ String? selectedKategorie;
 String? selectedBeanspruchung;
 String? selectedVerfugbarkeit;
 String? selectedMaterial;
+String? selectedEinzelnVerpackungseinheiten;
+String? selectedBundVerpackungseinheiten;
 String? artNrLieferantController;
-String? artNrInternController;
+String eanCodeGlobal = '';
 String? bezeichnungController;
 String? dimensionController;
 String? haptikController;
@@ -24,6 +26,43 @@ String? verkaufspreisZweiController;
 String? verkaufspreisDreiController;
 String? verkaufspreisMwStController;
 String? ausstellungsplatzController;
+int? artNrIntern;
+int? artNrInternPlus;
+String? artNrInternString;
+String? qrcodeResult;
+String? barcodeResult;
+
+//Find One Article
+String? findLieferant;
+String? findArtikeltyp;
+String? findKategorie;
+String? findArtNrLieferant;
+String? findLieferantandartikelnummer;
+String findArtNrIntern = '';
+String? findEanCode;
+String? findBezeichnung;
+String? findMaterial;
+String? findDimension;
+String? findHaptik;
+String? findOptik;
+String? findSortierung;
+String? findVpeEinzeln;
+String? findVpeBund;
+String? findEinzelnVerpackungseinheiten;
+String? findBundVerpackungseinheiten;
+String? findEigenschaft;
+String? findBeanspruchungsklasse;
+String? findVerfugbarkeit;
+String? findEinkaufspreis;
+String? findVerkaufspreisEins;
+String? findVerkaufspreisZwei;
+String? findVerkaufspreisDrei;
+String? findVerkaufspreisMWST;
+String? findAusstellplatz;
+String? findImageName;
+
+String printerIp = '192.168.188.115';
+int printerPort = 9500;
 
 String? einkauf;
 String? vkdreicontroller;
@@ -41,6 +80,7 @@ List<DropdownMenuItem<String>> herstellerListe = [
   const DropdownMenuItem(child: Text("Alu Plan"), value: "Alu Plan"),
   const DropdownMenuItem(child: Text("Amorim"), value: "Amorim"),
   const DropdownMenuItem(child: Text("Amtico"), value: "Amtico"),
+  const DropdownMenuItem(child: Text("Artenativ"), value: "Artenativ"),
   const DropdownMenuItem(child: Text("Bauwerk"), value: "Bauwerk"),
   const DropdownMenuItem(child: Text("Bärwolf"), value: "Bärwolf"),
   const DropdownMenuItem(
@@ -164,6 +204,121 @@ List<DropdownMenuItem<String>> verfugbarkeit = [
       child: Text("- Verfügbarkeit auswählen -"), value: null),
   const DropdownMenuItem(child: Text("Lager"), value: "Lager"),
   const DropdownMenuItem(child: Text("Bestellung"), value: "Bestellung"),
+];
+
+List<DropdownMenuItem<String>> verpackungseinheiten = [
+  const DropdownMenuItem(child: Text("- Einheit auswählen -"), value: null),
+  const DropdownMenuItem(child: Text("Ampulle(n)"), value: "Ampulle(n)"),
+  const DropdownMenuItem(child: Text("Becher"), value: "Becher"),
+  const DropdownMenuItem(child: Text("Behälter"), value: "Behälter"),
+  const DropdownMenuItem(child: Text("Beutel"), value: "Beutel"),
+  const DropdownMenuItem(child: Text("Blister"), value: "Blister"),
+  const DropdownMenuItem(child: Text("Box(en)"), value: "Box(en)"),
+  const DropdownMenuItem(child: Text("Container"), value: "Container"),
+  const DropdownMenuItem(child: Text("Dose(n)"), value: "Dose(n)"),
+  const DropdownMenuItem(child: Text("Eimer"), value: "Eimer"),
+  const DropdownMenuItem(child: Text("Einheit"), value: "Einheit"),
+  const DropdownMenuItem(child: Text("Einsatz"), value: "Einsatz"),
+  const DropdownMenuItem(child: Text("Fass/Fässer"), value: "Fass/Fässer"),
+  const DropdownMenuItem(child: Text("Flasche(n)"), value: "Flasche(n)"),
+  const DropdownMenuItem(child: Text("Folie(n)"), value: "Folie(n)"),
+  const DropdownMenuItem(child: Text("Gebinde"), value: "Gebinde"),
+  const DropdownMenuItem(child: Text("Kanister"), value: "Kanister"),
+  const DropdownMenuItem(child: Text("Karton(s)"), value: "Karton(s)"),
+  const DropdownMenuItem(child: Text("Kartusche(n)"), value: "Kartusche(n)"),
+  const DropdownMenuItem(child: Text("Kasten/Kästen"), value: "Kasten/Kästen"),
+  const DropdownMenuItem(child: Text("Kilogramm"), value: "Kilogramm"),
+  const DropdownMenuItem(child: Text("Kiste(n)"), value: "Kiste(n)"),
+  const DropdownMenuItem(child: Text("Korb/Körbe"), value: "Korb/Körbe"),
+  const DropdownMenuItem(child: Text("Kubikmeter"), value: "Kubikmeter"),
+  const DropdownMenuItem(
+      child: Text("Laufende Meter"), value: "Laufende Meter"),
+  const DropdownMenuItem(child: Text("Liter"), value: "Liter"),
+  const DropdownMenuItem(child: Text("Paar"), value: "Paar"),
+  const DropdownMenuItem(child: Text("Packung(en)"), value: "Packung(en)"),
+  const DropdownMenuItem(child: Text("Paket(e)"), value: "Paket(e)"),
+  const DropdownMenuItem(child: Text("Palette(n)"), value: "Palette(n)"),
+  const DropdownMenuItem(child: Text("Pauschal"), value: "Pauschal"),
+  const DropdownMenuItem(child: Text("Quadratmeter"), value: "Quadratmeter"),
+  const DropdownMenuItem(child: Text("Rolle(n)"), value: "Rolle(n)"),
+  const DropdownMenuItem(child: Text("Sack/Säcke"), value: "Sack/Säcke"),
+  const DropdownMenuItem(child: Text("Schachtel(n)"), value: "Schachtel(n)"),
+  const DropdownMenuItem(child: Text("Set(s)"), value: "Set(s)"),
+  const DropdownMenuItem(child: Text("Spule(n)"), value: "Spule(n)"),
+  const DropdownMenuItem(child: Text("Stück(e)"), value: "Stück(e)"),
+  const DropdownMenuItem(child: Text("Stufe(n)"), value: "Stufe(n)"),
+  const DropdownMenuItem(child: Text("Tonne(n)"), value: "Tonne(n)"),
+  const DropdownMenuItem(child: Text("Tube(n)"), value: "Tube(n)"),
+  const DropdownMenuItem(child: Text("Tüte(n)"), value: "Tüte(n)"),
+  const DropdownMenuItem(
+      child: Text("Verkaufspackung(en)"), value: "Verkaufspackung(en)"),
+];
+
+List<DropdownMenuItem<String>> verpackungseinheitenBund = [
+  const DropdownMenuItem(child: Text("- Einheit auswählen -"), value: null),
+  const DropdownMenuItem(child: Text("Ampulle(n)"), value: "Ampulle(n)"),
+  const DropdownMenuItem(child: Text("Becher"), value: "Becher"),
+  const DropdownMenuItem(child: Text("Behälter"), value: "Behälter"),
+  const DropdownMenuItem(child: Text("Beutel"), value: "Beutel"),
+  const DropdownMenuItem(child: Text("Blister"), value: "Blister"),
+  const DropdownMenuItem(child: Text("Box(en)"), value: "Box(en)"),
+  const DropdownMenuItem(child: Text("Container"), value: "Container"),
+  const DropdownMenuItem(child: Text("Dose(n)"), value: "Dose(n)"),
+  const DropdownMenuItem(child: Text("Eimer"), value: "Eimer"),
+  const DropdownMenuItem(child: Text("Einheit"), value: "Einheit"),
+  const DropdownMenuItem(child: Text("Einsatz"), value: "Einsatz"),
+  const DropdownMenuItem(child: Text("Fass/Fässer"), value: "Fass/Fässer"),
+  const DropdownMenuItem(child: Text("Flasche(n)"), value: "Flasche(n)"),
+  const DropdownMenuItem(child: Text("Folie(n)"), value: "Folie(n)"),
+  const DropdownMenuItem(child: Text("Gebinde"), value: "Gebinde"),
+  const DropdownMenuItem(child: Text("Kanister"), value: "Kanister"),
+  const DropdownMenuItem(child: Text("Karton(s)"), value: "Karton(s)"),
+  const DropdownMenuItem(child: Text("Kartusche(n)"), value: "Kartusche(n)"),
+  const DropdownMenuItem(child: Text("Kasten/Kästen"), value: "Kasten/Kästen"),
+  const DropdownMenuItem(child: Text("Kilogramm"), value: "Kilogramm"),
+  const DropdownMenuItem(child: Text("Kiste(n)"), value: "Kiste(n)"),
+  const DropdownMenuItem(child: Text("Korb/Körbe"), value: "Korb/Körbe"),
+  const DropdownMenuItem(child: Text("Kubikmeter"), value: "Kubikmeter"),
+  const DropdownMenuItem(
+      child: Text("Laufende Meter"), value: "Laufende Meter"),
+  const DropdownMenuItem(child: Text("Liter"), value: "Liter"),
+  const DropdownMenuItem(child: Text("Paar"), value: "Paar"),
+  const DropdownMenuItem(child: Text("Packung(en)"), value: "Packung(en)"),
+  const DropdownMenuItem(child: Text("Paket(e)"), value: "Paket(e)"),
+  const DropdownMenuItem(child: Text("Palette(n)"), value: "Palette(n)"),
+  const DropdownMenuItem(child: Text("Pauschal"), value: "Pauschal"),
+  const DropdownMenuItem(child: Text("Quadratmeter"), value: "Quadratmeter"),
+  const DropdownMenuItem(child: Text("Rolle(n)"), value: "Rolle(n)"),
+  const DropdownMenuItem(child: Text("Sack/Säcke"), value: "Sack/Säcke"),
+  const DropdownMenuItem(child: Text("Schachtel(n)"), value: "Schachtel(n)"),
+  const DropdownMenuItem(child: Text("Set(s)"), value: "Set(s)"),
+  const DropdownMenuItem(child: Text("Spule(n)"), value: "Spule(n)"),
+  const DropdownMenuItem(child: Text("Stück(e)"), value: "Stück(e)"),
+  const DropdownMenuItem(child: Text("Stufe(n)"), value: "Stufe(n)"),
+  const DropdownMenuItem(child: Text("Tonne(n)"), value: "Tonne(n)"),
+  const DropdownMenuItem(child: Text("Tube(n)"), value: "Tube(n)"),
+  const DropdownMenuItem(child: Text("Tüte(n)"), value: "Tüte(n)"),
+  const DropdownMenuItem(
+      child: Text("Verkaufspackung(en)"), value: "Verkaufspackung(en)"),
+];
+
+List<String> all = [
+  'Bau',
+  'Beläge',
+  'Chemie',
+  'Fliesen',
+  'Garten',
+  'Glaserei',
+  'Holz',
+  'Metallbau',
+  'Naturbaustoffe',
+  'Parkett',
+  'Profile',
+  'Schreinerei',
+  'Sockelleisten',
+  'Stein',
+  'Unterlagen',
+  'Werkzeuge und Zubehör'
 ];
 
 List<String> admonter = [

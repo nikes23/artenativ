@@ -1,10 +1,11 @@
 import 'package:artenativ/additemsextend.dart';
+import 'package:artenativ/models/artikel_request.dart';
 import 'package:flutter/material.dart';
 import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:artenativ/screens/user_details_page.dart';
 
 class UserTile extends StatelessWidget {
-  final ItemDataModel items;
+  final Artikel items;
 
   UserTile({required this.items});
 
@@ -38,12 +39,28 @@ class UserTile extends StatelessWidget {
                   ),*/
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
-                    child: Hero(
-                      tag: items.id,
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(items.image),
-                      ),
-                    ),
+                    child: items.imagePath != null
+                        ? Hero(
+                            tag: items.artnrintern,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              backgroundImage: NetworkImage(
+                                  items.imagePath.toString()
+                                  //'https://wiplano.de/media/image/product/91860/md/landhausdiele-3-schicht-eiche-rustique-5g-zufaellige-oberflaechenveredelung-schwarz-gespachtelt-1100-x-190-mm.jpg'
+                                  ),
+                            ),
+                          )
+                        : const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            backgroundImage: AssetImage(
+                              'assets/Logo.png',
+                            ),
+                            /**child: Image.asset(
+                              'assets/Logo.png',
+                              width: 40,
+                              fit: BoxFit.cover,
+                            ),*/
+                          ),
                   ),
                   Flexible(
                     child: Padding(
@@ -62,14 +79,14 @@ class UserTile extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                "${items.lieferant}",
+                                items.lieferant,
                                 style: new TextStyle(
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                          new Text(
+                          Text(
                             "Artikeltyp: ${items.artikeltyp}",
                             style: new TextStyle(
                               fontSize: 14.0,

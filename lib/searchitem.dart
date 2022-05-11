@@ -1,21 +1,15 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:async';
-import 'dart:io';
+import 'package:artenativ/components/qrscanner.dart';
+import 'package:artenativ/globals.dart';
 import 'package:artenativ/models/ItemDataModel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' as rootBundle;
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'domain/repository.dart';
 import 'globals.dart' as globals;
-import 'package:artenativ/home.dart';
-import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
 import 'package:artenativ/components/user_tile.dart';
 import 'package:artenativ/components/loading_widget.dart';
-
-import 'globals.dart';
+import 'package:artenativ/models/artikel_request.dart';
 
 class SearchItemScreen extends StatefulWidget {
   const SearchItemScreen({Key? key}) : super(key: key);
@@ -25,15 +19,16 @@ class SearchItemScreen extends StatefulWidget {
 }
 
 class _SearchItemScreenState extends State<SearchItemScreen> {
-  List<ItemDataModel> _items = <ItemDataModel>[];
-  List<ItemDataModel> _itemsDisplay = <ItemDataModel>[];
+  List<Artikel> _items = <Artikel>[];
+  List<Artikel> _itemsDisplay = <Artikel>[];
 
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    ReadJsonData().then((value) {
+    //ReadJsonData().then((value) {
+    LiveJsonData().then((value) {
       setState(() {
         _isLoading = false;
         _items.addAll(value);
@@ -54,8 +49,30 @@ class _SearchItemScreenState extends State<SearchItemScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            child: IconButton(
+                icon: const Icon(Icons.qr_code_scanner),
+                onPressed: () {
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Stack(
+                                    children: [
+                                      QRScannerScreen(
+                                          overlayColour:
+                                              Colors.black.withOpacity(0.5)),
+                                    ],
+                                  ),
+                              fullscreenDialog: true))
+                      .then((value) => setState(() {
+                            if (qrcodeResult != null) {
+                            } else {}
+                          }));
+                }),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
             child: IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          )
+          ),
         ],
       ),
       //drawer: const ChatDrawer(),

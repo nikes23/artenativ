@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:artenativ/components/barcodescanner.dart';
 import 'package:artenativ/models/artikel_request.dart';
 import 'package:artenativ/services/api_service.dart';
-import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,21 +12,16 @@ import 'dart:math' as math;
 import 'package:artenativ/home.dart';
 import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
-import 'package:artenativ/globals.dart';
+import 'globals.dart';
 
-class AddItemsExtendScreen extends StatefulWidget {
-  final Artikel items;
-
-  const AddItemsExtendScreen({Key? key, required this.items}) : super(key: key);
+class FindItemScreen extends StatefulWidget {
+  const FindItemScreen({Key? key}) : super(key: key);
 
   @override
-  _AddItemsExtendScreenState createState() =>
-      _AddItemsExtendScreenState(items: this.items);
+  _FindItemScreenState createState() => _FindItemScreenState();
 }
 
-class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
-  final Artikel items;
-  _AddItemsExtendScreenState({required this.items});
+class _FindItemScreenState extends State<FindItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<FormFieldState>();
 
@@ -49,7 +42,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   String localMaterial = '';
   String lieferantandartikelnummer = '';
   String localEinzelnVerpackungseinheiten = '';
-  String? localBundVerpackungseinheiten = '';
+  String localBundVerpackungseinheiten = '';
 
   //Variables for Textfields Content
   String _artNrLieferant = '';
@@ -90,93 +83,80 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   TextEditingController ausstellungsplatzController = TextEditingController();
 
   File? image;
-  String? imageName;
   var imageContainer;
 
   @override
   void initState() {
-    artTypen = [items.artikeltyp];
-    kategorien = [items.kategorie];
-    materialien = [items.material];
-    selectedHersteller = items.lieferant;
-    selectedArtikeltyp = items.artikeltyp;
-    selectedKategorie = items.kategorie;
-    selectedMaterial = items.material;
-    selectedBeanspruchung = items.beanspruchungsklasse;
-    selectedVerfugbarkeit = items.verfugbarkeit;
-    _artNrLieferant = items.artnrlieferant;
-    _artNrIntern = items.artnrintern;
-    _eanBarcode = items.eancode;
+    artTypen = [findArtikeltyp!];
+    kategorien = [findKategorie!];
+    materialien = [findMaterial!];
+    selectedHersteller = findLieferant;
+    selectedArtikeltyp = findArtikeltyp;
+    selectedKategorie = findKategorie;
+    selectedMaterial = findMaterial;
+    selectedBeanspruchung = findBeanspruchungsklasse;
+    selectedVerfugbarkeit = findVerfugbarkeit;
+    selectedEinzelnVerpackungseinheiten = findEinzelnVerpackungseinheiten;
+    selectedBundVerpackungseinheiten = findBundVerpackungseinheiten;
+    _artNrLieferant = findArtNrLieferant!;
+    _artNrIntern = findArtNrIntern;
+    _eanBarcode = findEanCode!;
     if (barcodeResult != null) {
       _eanBarcode = barcodeResult!;
     }
-    if (items.bezeichnung == null) {
+    if (findBezeichnung == null) {
       _bezeichnung = bezeichnungController.text;
-    } else if (items.bezeichnung != null) {
-      _bezeichnung = items.bezeichnung!;
+    } else if (findBezeichnung != null) {
+      _bezeichnung = findBezeichnung!;
     }
-    _dimension = items.dimension;
-    _haptik = items.haptik;
-    _optik = items.optik;
-    if (items.sortierung == null) {
+    _dimension = findDimension!;
+    _haptik = findHaptik!;
+    _optik = findOptik!;
+    if (findSortierung == null) {
       _sortierung = sortierungController.text;
-    } else if (items.sortierung != null) {
-      _sortierung = items.sortierung!;
+    } else if (findSortierung != null) {
+      _sortierung = findSortierung!;
     }
-    if (items.vpeeinzeln == null) {
+    if (findVpeEinzeln == null) {
       _vpeEinzeln = vpeEinzelnController.text;
-    } else if (items.vpeeinzeln != null) {
-      _vpeEinzeln = items.vpeeinzeln!;
+    } else if (findVpeEinzeln != null) {
+      _vpeEinzeln = findVpeEinzeln!;
     }
-    if (items.vpebund == null) {
+    if (findVpeBund == null) {
       _vpeBund = vpeBundController.text;
-    } else if (items.vpebund != null) {
-      _vpeBund = items.vpebund!;
+    } else if (findVpeBund != null) {
+      _vpeBund = findVpeBund!;
     }
-    if (items.einzelneinheit == '') {
-      items.einzelneinheit == null;
-    } else if (items.einzelneinheit != null) {
-      selectedEinzelnVerpackungseinheiten = items.einzelneinheit;
-    }
-    if (items.bundeinheit == '') {
-      log("Bundeinheit: " + items.bundeinheit.toString());
-      localBundVerpackungseinheiten = null;
-      log("Bundeinheit2: " + items.bundeinheit.toString());
-    } else if (items.bundeinheit != null) {
-      localBundVerpackungseinheiten = items.bundeinheit.toString();
-      log('LocalBund: ' + localBundVerpackungseinheiten!);
-      selectedBundVerpackungseinheiten = items.bundeinheit;
-    }
-    if (items.eigenschaft == null) {
+    if (findEigenschaft == null) {
       _eigenschaft = eigenschaftController.text;
-    } else if (items.eigenschaft != null) {
-      _eigenschaft = items.eigenschaft!;
+    } else if (findEigenschaft != null) {
+      _eigenschaft = findEigenschaft!;
     }
-    if (items.einkaufspreis == null) {
+    if (findEinkaufspreis == null) {
       _einkaufspreis = einkaufspreisController.text;
-    } else if (items.einkaufspreis != null) {
-      _einkaufspreis = items.einkaufspreis!;
+    } else if (findEinkaufspreis != null) {
+      _einkaufspreis = findEinkaufspreis!;
     }
-    if (items.verkaufspreiseins == null) {
+    if (findVerkaufspreisEins == null) {
       _verkaufspreisEins = verkaufspreisEinsController.text;
-    } else if (items.verkaufspreiseins != null) {
-      _verkaufspreisEins = items.verkaufspreiseins!;
+    } else if (findVerkaufspreisEins != null) {
+      _verkaufspreisEins = findVerkaufspreisEins!;
     }
-    if (items.verkaufspreiszwei == null) {
+    if (findVerkaufspreisZwei == null) {
       _verkaufspreisZwei = verkaufspreisZweiController.text;
-    } else if (items.verkaufspreiszwei != null) {
-      _verkaufspreisZwei = items.verkaufspreiszwei!;
+    } else if (findVerkaufspreisZwei != null) {
+      _verkaufspreisZwei = findVerkaufspreisZwei!;
     }
-    if (items.verkaufspreisdrei == null) {
+    if (findVerkaufspreisDrei == null) {
       _verkaufspreisDrei = verkaufspreisDreiController.text;
-    } else if (items.verkaufspreisdrei != null) {
-      _verkaufspreisDrei = items.verkaufspreisdrei!;
+    } else if (findVerkaufspreisDrei != null) {
+      _verkaufspreisDrei = findVerkaufspreisDrei!;
     }
     _verkaufspreisMwSt = verkaufspreisMwStController.text;
-    if (items.ausstellplatz == null) {
+    if (findAusstellplatz == null) {
       _ausstellungsplatz = ausstellungsplatzController.text;
-    } else if (items.ausstellplatz != null) {
-      _ausstellungsplatz = items.ausstellplatz!;
+    } else if (findAusstellplatz != null) {
+      _ausstellungsplatz = findAusstellplatz!;
     }
     super.initState();
   }
@@ -231,7 +211,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
             }),*/
         centerTitle: true,
         elevation: 0,
-        title: const Text('Bearbeiten'),
+        title: const Text('Finden'),
         backgroundColor: const Color(0xFFF76A25),
       ),
       //drawer: const ChatDrawer(),
@@ -348,7 +328,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Lieferanten aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.lieferant,
+                                  value: findLieferant,
                                   onSaved: (value) => selectedHersteller,
                                   onChanged: (hersteller) {
                                     if (hersteller == 'Admonter') {
@@ -748,7 +728,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Artikeltyp aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.artikeltyp,
+                                  value: findArtikeltyp,
                                   onSaved: (value) => selectedArtikeltyp,
                                   onChanged: (artikeltyp) {
                                     if (artikeltyp == 'Fliesen') {
@@ -866,7 +846,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Kategorie aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.kategorie,
+                                  value: findKategorie,
                                   onSaved: (value) => selectedKategorie,
                                   onChanged: (kategorie) {
                                     if (kategorie == 'Massivparkett') {
@@ -1253,7 +1233,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte ein Material aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.material,
+                                  value: findMaterial,
                                   onSaved: (value) => selectedMaterial,
                                   onChanged: (material) {
                                     setState(() {
@@ -1522,7 +1502,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                               ? "Einheit auswählen"
                                               : null,
                                           dropdownColor: Colors.white,
-                                          value: items.einzelneinheit,
+                                          value:
+                                              findEinzelnVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedEinzelnVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1619,7 +1600,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                           validator: (value) =>
                                               value == null ? null : null,
                                           dropdownColor: Colors.white,
-                                          value: items.bundeinheit,
+                                          value: findBundVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedBundVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1630,7 +1611,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                                   selectedBundVerpackungseinheiten!;
                                             });
                                           },
-                                          items: verpackungseinheitenBund,
+                                          items: verpackungseinheiten,
                                         ),
                                       ],
                                     ),
@@ -1711,7 +1692,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Beanspruchungsklasse aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.beanspruchungsklasse,
+                                  value: findBeanspruchungsklasse,
                                   onSaved: (value) => selectedBeanspruchung,
                                   onChanged: (beanspruchung) {
                                     setState(() {
@@ -1755,7 +1736,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Verfügbarkeit aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.verfugbarkeit,
+                                  value: findVerfugbarkeit,
                                   onSaved: (value) => selectedVerfugbarkeit,
                                   onChanged: (verfugbarkeit) {
                                     setState(() {
@@ -1862,7 +1843,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'Verkaufspreis 1',
+                                      'Verkaufspreis 1*',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
@@ -1920,7 +1901,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'Verkaufspreis 2',
+                                      'Verkaufspreis 2*',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
@@ -2460,7 +2441,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                     selectedEinzelnVerpackungseinheiten!;
                 _vpeBund = vpeBundController.text;
                 if (selectedBundVerpackungseinheiten == null) {
-                  localBundVerpackungseinheiten = null;
+                  localBundVerpackungseinheiten = '';
                 } else if (selectedBundVerpackungseinheiten != null) {
                   localBundVerpackungseinheiten =
                       selectedBundVerpackungseinheiten!;
@@ -2498,12 +2479,12 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 log('Einkaufspreis: $_einkaufspreis');
                 log('Verkaufspreis 1: $_verkaufspreisEins');
                 /**
-                    double test1 = 20.40;
-                    double test2 = 21.30;
-                    var testresutl = test1 + test2;
-                    log('Testrechnung: $testresutl');
-                    log('MwStRechnung: $mwstCalculate');
-                 */
+                double test1 = 20.40;
+                double test2 = 21.30;
+                var testresutl = test1 + test2;
+                log('Testrechnung: $testresutl');
+                log('MwStRechnung: $mwstCalculate');
+                */
                 log('Verkaufspreis 2: $_verkaufspreisZwei');
                 log('Verkaufspreis 3: $_verkaufspreisDrei');
                 log('Verkaufspreis MwSt: $_verkaufspreisMwSt');
@@ -2539,15 +2520,13 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 barcodeResult = null;
               });
 
-              _uploadImage();
-
               Artikel model = Artikel(
                 lieferant: localHersteller,
                 artikeltyp: localArtikeltyp,
                 kategorie: localKategorie,
                 artnrlieferant: _artNrLieferant,
                 lieferantandartikelnummer: lieferantandartikelnummer,
-                artnrintern: items.artnrintern,
+                artnrintern: findArtNrIntern,
                 eancode: _eanBarcode,
                 bezeichnung: _bezeichnung,
                 material: localMaterial,
@@ -2567,7 +2546,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 verkaufspreiszwei: _verkaufspreisZwei,
                 verkaufspreisdrei: _verkaufspreisDrei,
                 ausstellplatz: _ausstellungsplatz,
-                imageName: imageName,
                 //imageName: imageName,
               );
 
@@ -2618,7 +2596,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
+                    Navigator.pop(context);
                   } else if (response.data != null && image == null) {
                     log('Intern ohne Bild: $artNrInternString');
                     showDialog(
@@ -2659,7 +2637,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
+                    Navigator.pop(context);
                   } else {
                     log("Bild hochladen fehlgeschlagen");
                     showDialog(
@@ -2699,51 +2677,13 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
+                    Navigator.pop(context);
                   }
                 },
               );
             }
           }),
     );
-  }
-
-  _uploadImage() async {
-    imageName = image?.path.split('/').last;
-    //String? fileName = image?.path.split('/').last;
-
-    Map<String, String> _headers = <String, String>{
-      //'Content-Type': 'multipart/form-data',
-      'Content-Type': 'application/json, multipart/form-data',
-      'Accept': 'application/json',
-    };
-    var formData = FormData.fromMap(
-      {
-        "image": await MultipartFile.fromFile(
-          image!.path,
-          filename: imageName,
-          //filename: fileName,
-          contentType: MediaType("image", "jpeg"),
-        ),
-      },
-    );
-    Map<String, String> headers = <String, String>{
-      'Content-Type': 'multipart/form-data'
-    };
-    //_headers['access_token'] = ;
-    //var response = await Dio().post("http://localhost:4000/upload", data: formData);
-    //ONLINE HEROKU
-    var response = await Dio().post("http://artenativ.herokuapp.com/upload",
-        data: formData, options: Options(headers: _headers));
-    /**
-        //OFFICE LOCAL IMAGE UPLOAD
-        var response = await Dio().post("http://192.168.188.85:4000/upload",
-        data: formData, options: Options(headers: _headers));
-     */
-    //var response = await Dio().post("http://192.168.188.85:4000/artikel/addartikel", data: formData);
-    //var response = await Dio().post(Uri.http(Config.apiURL, Config.addartikelAPI).toString(), data: formData);
-    //var response = await Dio().post("http://192.168.178.37:4000/upload", data: formData);
-    debugPrint(response.toString());
   }
 
   Widget getListView(BuildContext context) {
@@ -2768,24 +2708,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
-          /**child: items.imagePath != null
-              ? Hero(
-                  tag: items.artnrintern,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    backgroundImage: NetworkImage(items.imagePath.toString()
-                        //'https://wiplano.de/media/image/product/91860/md/landhausdiele-3-schicht-eiche-rustique-5g-zufaellige-oberflaechenveredelung-schwarz-gespachtelt-1100-x-190-mm.jpg'
-                        ),
-                    radius: 100.0,
-                  ),
-                )
-              : const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  backgroundImage: AssetImage(
-                    'assets/Logo.png',
-                  ),
-                  radius: 100.0,
-                ),*/
           child: image != null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(15.0),
@@ -2795,45 +2717,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                     height: 200,
                     fit: BoxFit.cover,
                   ))
-              : items.imagePath != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.network(
-                        items.imagePath.toString(),
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.asset(
-                        'assets/Logo.png',
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-          /*Hero(
-            tag: items.artnrintern,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://wiplano.de/media/image/product/91860/md/landhausdiele-3-schicht-eiche-rustique-5g-zufaellige-oberflaechenveredelung-schwarz-gespachtelt-1100-x-190-mm.jpg'),
-              radius: 100.0,
-            ),
-          ),*/
-        ),
-        /**Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
-          child: items.image != null
-              ? Hero(
-            tag: items.id,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(items.image),
-              radius: 100.0,
-            ),
-          )
-          /*ClipOval(
+              /*ClipOval(
               child: Image.file(
               image!,
               width: 200,
@@ -2841,11 +2725,11 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
               fit: BoxFit.cover,
               ))*/
               : Image.asset(
-            'assets/Artenativ_Logo_Schwarz.png',
-            width: 300,
-            fit: BoxFit.cover,
-          ),
-        ),*/
+                  'assets/Artenativ_Logo_Schwarz.png',
+                  width: 300,
+                  fit: BoxFit.cover,
+                ),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 5.0),
           child: SizedBox(
@@ -2926,30 +2810,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
         fit: BoxFit.cover,
       );
     }
-    /*Hero(
-      tag: items.artnrintern,
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(
-            'https://wiplano.de/media/image/product/91860/md/landhausdiele-3-schicht-eiche-rustique-5g-zufaellige-oberflaechenveredelung-schwarz-gespachtelt-1100-x-190-mm.jpg'),
-        radius: 100.0,
-      ),
-    );*/
-
-    /**if (items.image != null) {
-      Hero(
-        tag: items.id,
-        child: CircleAvatar(
-          backgroundImage: NetworkImage(items.image),
-          radius: 100.0,
-        ),
-      );
-    } else {
-      Image.asset(
-        'assets/Artenativ_Logo_Schwarz.png',
-        width: 300,
-        fit: BoxFit.cover,
-      );
-    }*/
   }
 
   void navigateToSignIn() {

@@ -33,8 +33,16 @@ dependencies:
   camera_web: ^0.2.1+1
   http: ^0.13.4
   dio: ^4.0.6
+  # QR-Code & Barcode Scanner
+  mobile_scanner: ^1.0.0
+  # IP Printer
+  esc_pos_printer: ^4.1.0
+  #esc_pos_utils: ^1.1.0
+  esc_pos_utils_plus: ^2.0.1+6
   # api_cache_manager: ^1.0.2
   # sqflite: ^2.0.2
+
+  responsive_framework: ^0.1.7
 
   #emails send
   url_launcher: ^6.0.9

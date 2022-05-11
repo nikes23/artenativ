@@ -565,70 +565,185 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _userStatus = _userStatusController.text;
               });
 
-              RegisterRequestModel model = RegisterRequestModel(
-                firstname: _firstName,
-                lastname: _lastName,
-                password: _password,
-                email: _email,
-              );
+              if (_password == _confirmPassword) {
+                RegisterRequestModel model = RegisterRequestModel(
+                  firstname: _firstName,
+                  lastname: _lastName,
+                  password: _password,
+                  email: _email,
+                );
 
-              APIService.register(model).then(
-                (response) {
-                  setState(() {
-                    //isApiCallProcess = false;
-                  });
+                APIService.register(model).then(
+                  (response) {
+                    setState(() {
+                      //isApiCallProcess = false;
+                    });
 
-                  if (response.data != null) {
-                    showSimpleAlertDialog(
-                      context,
-                      Config.appName,
-                      "Die Registrierung war erfolgreich!",
-                      "OK",
-                      () {
-                        Navigator.pushNamedAndRemoveUntil(
+                    if (response.data != null) {
+                      /*showSimpleAlertDialog(
+                        context,
+                        Config.appName,
+                        "Die Registrierung war erfolgreich!",
+                        "OK",
+                        () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/home',
+                            (route) => false,
+                          );
+                        },
+                      );*/
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) => AlertDialog(
+                                title: const Center(
+                                    child: Text(
+                                  'Hurra!',
+                                  style: TextStyle(color: Color(0xFFF76A25)),
+                                )),
+                                content: const Text(
+                                    'Die Registrierung war erfolgreich!'),
+                                actions: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Center(
+                                      child: Container(
+                                        height: 36.0,
+                                        width: 80.0,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          color: const Color(0xFFF76A25),
+                                        ),
+                                        child: MaterialButton(
+                                            child: const Text(
+                                              "OK",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pushNamedAndRemoveUntil(
+                                                context,
+                                                '/home',
+                                                (route) => false,
+                                              );
+                                              _userNameController.clear();
+                                              _firstNameController.clear();
+                                              _lastNameController.clear();
+                                              _phoneNumberController.clear();
+                                              _mailController.clear();
+                                              _passwordController.clear();
+                                              _confirmPasswordController
+                                                  .clear();
+                                              _userStatusController.clear();
+                                              log('Username: $_username');
+                                              log('Vorname: $_firstName');
+                                              log('Nachname: $_lastName');
+                                              log('Telefonnummer: $_phoneNumber');
+                                              log('Mail: $_email');
+                                              log('Passwort1: $_password');
+                                              log('Passwort2: $_confirmPassword');
+                                              log('Benutzerstatus: $_userStatus');
+                                            }),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ));
+                      /*Navigator.push(
                           context,
-                          '/home',
-                          (route) => false,
-                        );
-                      },
-                    );
-                  } else {
-                    showSimpleAlertDialog(
-                      context,
-                      Config.appName,
-                      response.message,
-                      "OK",
-                      () {
-                        Navigator.of(context).pop();
-                      },
-                    );
-                  }
-                },
-              );
-
-              _userNameController.clear();
-              _firstNameController.clear();
-              _lastNameController.clear();
-              _phoneNumberController.clear();
-              _mailController.clear();
-              _passwordController.clear();
-              _confirmPasswordController.clear();
-              _userStatusController.clear();
-
-              log('Username: $_username');
-              log('Vorname: $_firstName');
-              log('Nachname: $_lastName');
-              log('Telefonnummer: $_phoneNumber');
-              log('Mail: $_email');
-              log('Passwort1: $_password');
-              log('Passwort2: $_confirmPassword');
-              log('Benutzerstatus: $_userStatus');
-
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                      fullscreenDialog: true));
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                              fullscreenDialog: true));*/
+                    } else {
+                      /**
+                      showSimpleAlertDialog(
+                        context,
+                        Config.appName,
+                        response.message,
+                        "OK",
+                        () {
+                          Navigator.of(context).pop();
+                        },
+                      );
+                      */
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) => AlertDialog(
+                                title: const Center(
+                                    child: Text(
+                                  'Oops, ein Fehler ist aufgetreten!',
+                                  style: TextStyle(color: Color(0xFFF76A25)),
+                                )),
+                                content: Text(response.message),
+                                actions: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Center(
+                                      child: Container(
+                                        height: 36.0,
+                                        width: 80.0,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          color: const Color(0xFFF76A25),
+                                        ),
+                                        child: MaterialButton(
+                                            child: const Text(
+                                              "OK",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            }),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ));
+                    }
+                  },
+                );
+              } else if (_password != _confirmPassword) {
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) => AlertDialog(
+                          title: const Center(
+                              child: Text(
+                            'Oops, ein Fehler ist aufgetreten!',
+                            style: TextStyle(color: Color(0xFFF76A25)),
+                          )),
+                          content:
+                              const Text('Passwörter stimmen nicht überein'),
+                          actions: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                child: Container(
+                                  height: 36.0,
+                                  width: 80.0,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    color: const Color(0xFFF76A25),
+                                  ),
+                                  child: MaterialButton(
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      }),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ));
+              }
             }
           }),
     );

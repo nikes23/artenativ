@@ -8,5 +8,10 @@ class Config {
   static const registerAPI = "/users/register";
   static const userProfileAPI = "/users/user-Profile";
   static const addartikelAPI = "/artikel/addartikel";
-  static const addartikelimageAPI = "/artikel/upload";
+  static const findartikelAPI = "/findartikel/";
+  static const updateartikelAPI = "/findartikel/";
+  static const getAllArticleAPI = "/artikel/allartikel";
+  static const internartikelidAPI = "/artikel/internartikelid";
+  //static const addartikelimageAPI = "/artikel/upload";
+  static const addartikelimageAPI = "/upload";
 }

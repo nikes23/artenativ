@@ -48,8 +48,8 @@
 		<key>NSPhotoLibraryUsageDescription</key>
         	<string>Bild auswählen</string>
         	<key>NSCameraUsageDescription</key>
-        	<string>Bild aufnehmen</string>
+        	<string>Zugriff auf die Kamera</string>
         	<key>NSMicrophoneUsageDescription</key>
-        	<string>Tonaufnahme</string>
+        	<string>Zugriff auf den Ton</string>
 	</dict>
 </plist>
