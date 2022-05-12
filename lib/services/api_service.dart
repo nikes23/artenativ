@@ -159,6 +159,7 @@ class APIService {
       //findVerkaufspreisMWST = findartikel.verkaufspreismwst;
       findAusstellplatz = findartikel.ausstellplatz;
       findImageName = findartikel.imageName;
+      findImagePath = findartikel.imagePath;
 
       log('findLieferant: $lokallieferant');
       log('findArtikeltyp: $findArtikeltyp');

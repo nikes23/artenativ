@@ -4,15 +4,14 @@ import 'dart:io';
 import 'package:artenativ/components/barcodescanner.dart';
 import 'package:artenativ/models/artikel_request.dart';
 import 'package:artenativ/services/api_service.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'models/ItemDataModel.dart';
 import 'dart:math' as math;
-import 'package:artenativ/home.dart';
-import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
-import 'globals.dart';
+import 'package:artenativ/globals.dart';
 
 class FindItemScreen extends StatefulWidget {
   const FindItemScreen({Key? key}) : super(key: key);
@@ -29,10 +28,6 @@ class _FindItemScreenState extends State<FindItemScreen> {
     num mod = math.pow(10.0, places);
     return ((value * mod).round().toDouble() / mod);
   }
-
-  var file, extention, imagePath;
-
-  String response = '';
 
   String localHersteller = '';
   String localArtikeltyp = '';
@@ -84,7 +79,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
 
   File? image;
   String? imageName;
-  var imageContainer;
+  File? imagePath;
 
   @override
   void initState() {
@@ -241,60 +236,8 @@ class _FindItemScreenState extends State<FindItemScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          /*
-                          const SizedBox(
-                            width: 600,
-                            child: Center(
-                              child: Text(
-                                'Artikel bearbeiten',
-                                style: TextStyle(
-                                  color: Color(0xFFF76A25),
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          */
-                          const SizedBox(
-                            height: 20.0,
-                          ),
                           getListView(context),
                           //Lieferant
-                          /*SizedBox(
-                            width: 600,
-                            child: Column(
-                              children: [
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      'Hersteller*',
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                TextFormField(
-                                  //validator: UserNameValidator.validate,
-                                  style: const TextStyle(
-                                      fontSize: 18.0, color: Colors.black),
-                                  decoration: buildSignUpInputDecoration(
-                                      'Herstellername eingeben', Icons.house),
-                                  onSaved: (value) => _firstName = value!,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Bitte geben Sie den Herstellernamen ein';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),*/
                           SizedBox(
                             width: 600,
                             child: Column(
@@ -339,7 +282,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte einen Lieferanten aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findLieferant,
+                                  value: selectedHersteller,
                                   onSaved: (value) => selectedHersteller,
                                   onChanged: (hersteller) {
                                     if (hersteller == 'Admonter') {
@@ -739,7 +682,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte einen Artikeltyp aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findArtikeltyp,
+                                  value: selectedArtikeltyp,
                                   onSaved: (value) => selectedArtikeltyp,
                                   onChanged: (artikeltyp) {
                                     if (artikeltyp == 'Fliesen') {
@@ -857,7 +800,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte eine Kategorie aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findKategorie,
+                                  value: selectedKategorie,
                                   onSaved: (value) => selectedKategorie,
                                   onChanged: (kategorie) {
                                     if (kategorie == 'Massivparkett') {
@@ -968,6 +911,9 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Schleifmittel') {
                                       materialien = werkzeugeZubehoerMaterial;
+                                    } else if (kategorie ==
+                                        'Keine Kategorie definiert') {
+                                      materialien = keinMaterial;
                                     } else if (kategorie == null) {
                                       setState(() {
                                         List<String> glob;
@@ -1244,7 +1190,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte ein Material aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findMaterial,
+                                  value: selectedMaterial,
                                   onSaved: (value) => selectedMaterial,
                                   onChanged: (material) {
                                     setState(() {
@@ -1514,7 +1460,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                               : null,
                                           dropdownColor: Colors.white,
                                           value:
-                                              findEinzelnVerpackungseinheiten,
+                                              selectedEinzelnVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedEinzelnVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1611,7 +1557,8 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                           validator: (value) =>
                                               value == null ? null : null,
                                           dropdownColor: Colors.white,
-                                          value: findBundVerpackungseinheiten,
+                                          value:
+                                              selectedBundVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedBundVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1622,7 +1569,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                                   selectedBundVerpackungseinheiten!;
                                             });
                                           },
-                                          items: verpackungseinheiten,
+                                          items: verpackungseinheitenBund,
                                         ),
                                       ],
                                     ),
@@ -1703,7 +1650,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte eine Beanspruchungsklasse aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findBeanspruchungsklasse,
+                                  value: selectedBeanspruchung,
                                   onSaved: (value) => selectedBeanspruchung,
                                   onChanged: (beanspruchung) {
                                     setState(() {
@@ -1747,7 +1694,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                       ? "Wählen Sie bitte eine Verfügbarkeit aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: findVerfugbarkeit,
+                                  value: selectedVerfugbarkeit,
                                   onSaved: (value) => selectedVerfugbarkeit,
                                   onChanged: (verfugbarkeit) {
                                     setState(() {
@@ -2049,12 +1996,12 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                         double mwstPlaceholder11 =
                                             double.parse(mwstPlaceholder1);
                                         mwstPlaceholder11.toStringAsFixed(2);
-                                        log('DoubleCont: ${mwstPlaceholder11}');
+                                        log('DoubleCont: $mwstPlaceholder11');
                                         mwstCalculate = double.parse(
                                             (mwstPlaceholder11 * 119 / 100)
                                                 .toStringAsFixed(2));
                                         mwstCalculate.toStringAsFixed(2);
-                                        log('mwResult: ${mwstCalculate}');
+                                        log('mwResult: $mwstCalculate');
                                         mwstResult = mwstCalculate.toString();
                                         verkaufspreisMwStController.text =
                                             mwstResult
@@ -2192,10 +2139,8 @@ class _FindItemScreenState extends State<FindItemScreen> {
                             ),
                           ),
                           buildButtonContainer(),
-                          Text(response),
-                          //getListView(context),
                           const SizedBox(
-                            height: 20.0,
+                            height: 40.0,
                           ),
                         ],
                       ),
@@ -2452,7 +2397,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                     selectedEinzelnVerpackungseinheiten!;
                 _vpeBund = vpeBundController.text;
                 if (selectedBundVerpackungseinheiten == null) {
-                  localBundVerpackungseinheiten = '';
+                  localBundVerpackungseinheiten = null;
                 } else if (selectedBundVerpackungseinheiten != null) {
                   localBundVerpackungseinheiten =
                       selectedBundVerpackungseinheiten!;
@@ -2537,7 +2482,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                 kategorie: localKategorie,
                 artnrlieferant: _artNrLieferant,
                 lieferantandartikelnummer: lieferantandartikelnummer,
-                artnrintern: findArtNrIntern,
+                artnrintern: _artNrIntern,
                 eancode: _eanBarcode,
                 bezeichnung: _bezeichnung,
                 material: localMaterial,
@@ -2557,7 +2502,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                 verkaufspreiszwei: _verkaufspreisZwei,
                 verkaufspreisdrei: _verkaufspreisDrei,
                 ausstellplatz: _ausstellungsplatz,
-                //imageName: imageName,
+                imageName: imageName,
               );
 
               APIService.updateartikel(model, model.artnrintern).then(
@@ -2567,8 +2512,8 @@ class _FindItemScreenState extends State<FindItemScreen> {
                   });
 
                   if (response.data != null && image != null) {
+                    _uploadImage();
                     log("Bild wurde hochgeladen");
-                    log('Intern Bild: $artNrInternString');
                     showDialog(
                         context: context,
                         barrierDismissible: true,
@@ -2579,7 +2524,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
-                                  'Der Artikel wurde erfolgreich aktualisiert'),
+                                  'Der Artikel wurde erfolgreich aktualisiert!'),
                               actions: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -2609,7 +2554,6 @@ class _FindItemScreenState extends State<FindItemScreen> {
                     Navigator.pop(context);
                     Navigator.pop(context);
                   } else if (response.data != null && image == null) {
-                    log('Intern ohne Bild: $artNrInternString');
                     showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -2620,7 +2564,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
-                                  'Der Artikel wurde ohne Bild aktualisiert, da keines ausgewählt/aufgenommen wurde'),
+                                  'Der Artikel wurde ohne Bild aktualisiert, weil kein neues ausgewählt oder aufgenommen wurde!'),
                               actions: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -2697,6 +2641,39 @@ class _FindItemScreenState extends State<FindItemScreen> {
     );
   }
 
+  _uploadImage() async {
+    imageName = image?.path.split('/').last;
+
+    Map<String, String> _headers = <String, String>{
+      'Content-Type': 'application/json, multipart/form-data',
+      'Accept': 'application/json',
+    };
+    var formData = FormData.fromMap(
+      {
+        "image": await MultipartFile.fromFile(
+          image!.path,
+          filename: imageName,
+          contentType: MediaType("image", "jpeg"),
+        ),
+      },
+    );
+
+    //ONLINE HEROKU
+    var response = await Dio().post("http://artenativ.herokuapp.com/upload",
+        data: formData, options: Options(headers: _headers));
+
+    //OFFICE LOCAL IMAGE UPLOAD
+    /**
+        var response = await Dio().post("http://192.168.188.85:4000/upload",
+        data: formData, options: Options(headers: _headers));
+     */
+
+    //var response = await Dio().post("http://192.168.188.85:4000/artikel/addartikel", data: formData);
+    //var response = await Dio().post(Uri.http(Config.apiURL, Config.addartikelAPI).toString(), data: formData);
+    //var response = await Dio().post("http://192.168.178.37:4000/upload", data: formData);
+    debugPrint(response.toString());
+  }
+
   Widget getListView(BuildContext context) {
     Future pickImage(ImageSource source) async {
       try {
@@ -2728,18 +2705,25 @@ class _FindItemScreenState extends State<FindItemScreen> {
                     height: 200,
                     fit: BoxFit.cover,
                   ))
-              /*ClipOval(
-              child: Image.file(
-              image!,
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
-              ))*/
-              : Image.asset(
-                  'assets/Artenativ_Logo_Schwarz.png',
-                  width: 300,
-                  fit: BoxFit.cover,
-                ),
+              : findImagePath != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: Image.network(
+                        findImagePath.toString(),
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: Image.asset(
+                        'assets/Logo.png',
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 5.0),
@@ -2805,7 +2789,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
     return listView;
   }
 
-  showwidget() {
+  /*showwidget() {
     if (image != null) {
       Hero(
         tag: 1,
@@ -2821,14 +2805,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
         fit: BoxFit.cover,
       );
     }
-  }
-
-  void navigateToSignIn() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const LoginScreen(), fullscreenDialog: true));
-  }
+  }*/
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -2880,7 +2857,7 @@ class DropdownAusstellungsplatz extends StatefulWidget {
 }
 
 class _DropdownAusstellungsplatzState extends State<DropdownAusstellungsplatz> {
-  String? selectedValue = null;
+  String? selectedValue;
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField(

@@ -60,6 +60,7 @@ String? findVerkaufspreisDrei;
 String? findVerkaufspreisMWST;
 String? findAusstellplatz;
 String? findImageName;
+String? findImagePath;
 
 String printerIp = '192.168.188.115';
 int printerPort = 9500;
