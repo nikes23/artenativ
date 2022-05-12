@@ -1,7 +1,5 @@
 import 'package:artenativ/components/qrscanner.dart';
 import 'package:artenativ/globals.dart';
-import 'package:artenativ/models/ItemDataModel.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' as rootBundle;
 import 'package:http/http.dart' as http;
 import 'domain/repository.dart';
@@ -19,9 +17,10 @@ class SearchItemScreen extends StatefulWidget {
 }
 
 class _SearchItemScreenState extends State<SearchItemScreen> {
-  List<Artikel> _items = <Artikel>[];
+  final List<Artikel> _items = <Artikel>[];
   List<Artikel> _itemsDisplay = <Artikel>[];
 
+  final TextEditingController _textController = TextEditingController();
   bool _isLoading = true;
 
   @override
@@ -77,19 +76,18 @@ class _SearchItemScreenState extends State<SearchItemScreen> {
       ),
       //drawer: const ChatDrawer(),
       body: SafeArea(
-        child: Container(
-          child: ListView.builder(
-            itemBuilder: (context, index) {
-              if (!_isLoading) {
-                return index == 0
-                    ? _searchBar()
-                    : UserTile(items: this._itemsDisplay[index - 1]);
-              } else {
-                return LoadingView();
-              }
-            },
-            itemCount: _itemsDisplay.length + 1,
-          ),
+        child: ListView.builder(
+          itemBuilder: (context, index) {
+            if (!_isLoading) {
+              return index == 0
+                  ? _searchBar()
+                  //: UserTile(items: this._itemsDisplay[index - 1]);
+                  : UserTile(items: _itemsDisplay[index - 1]);
+            } else {
+              return LoadingView();
+            }
+          },
+          itemCount: _itemsDisplay.length + 1,
         ),
       ),
     );
@@ -97,7 +95,7 @@ class _SearchItemScreenState extends State<SearchItemScreen> {
 
   _searchBar() {
     return Padding(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(12.0),
       child: TextField(
         autofocus: false,
         onChanged: (searchText) {
@@ -113,15 +111,26 @@ class _SearchItemScreenState extends State<SearchItemScreen> {
             }).toList();
           });
         },
-        // controller: _textController,
+        controller: _textController,
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.search),
-          hintText: 'Search Users',
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(width: 2, color: Color(0xFFF76A25)),
+          border: const OutlineInputBorder(),
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              _textController.clear();
+              setState(() {
+                _itemsDisplay = _items;
+              });
+            },
+            color: Colors.black,
+            splashColor: const Color(0xFFF76A25),
           ),
-          focusColor: Color(0xFFF76A25),
+          hintText: 'Artikel suchen',
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(width: 2, color: Color(0xFFF76A25)),
+          ),
+          focusColor: const Color(0xFFF76A25),
         ),
       ),
     );

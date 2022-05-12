@@ -42,7 +42,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
   String localMaterial = '';
   String lieferantandartikelnummer = '';
   String localEinzelnVerpackungseinheiten = '';
-  String localBundVerpackungseinheiten = '';
+  String? localBundVerpackungseinheiten = '';
 
   //Variables for Textfields Content
   String _artNrLieferant = '';
@@ -83,6 +83,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
   TextEditingController ausstellungsplatzController = TextEditingController();
 
   File? image;
+  String? imageName;
   var imageContainer;
 
   @override
@@ -96,8 +97,6 @@ class _FindItemScreenState extends State<FindItemScreen> {
     selectedMaterial = findMaterial;
     selectedBeanspruchung = findBeanspruchungsklasse;
     selectedVerfugbarkeit = findVerfugbarkeit;
-    selectedEinzelnVerpackungseinheiten = findEinzelnVerpackungseinheiten;
-    selectedBundVerpackungseinheiten = findBundVerpackungseinheiten;
     _artNrLieferant = findArtNrLieferant!;
     _artNrIntern = findArtNrIntern;
     _eanBarcode = findEanCode!;
@@ -126,6 +125,18 @@ class _FindItemScreenState extends State<FindItemScreen> {
       _vpeBund = vpeBundController.text;
     } else if (findVpeBund != null) {
       _vpeBund = findVpeBund!;
+    }
+    if (findEinzelnVerpackungseinheiten == '') {
+      selectedEinzelnVerpackungseinheiten = null;
+    } else if (findEinzelnVerpackungseinheiten != null) {
+      selectedEinzelnVerpackungseinheiten = findEinzelnVerpackungseinheiten!;
+    }
+    if (findBundVerpackungseinheiten == '') {
+      //localBundVerpackungseinheiten = null;
+      selectedBundVerpackungseinheiten = null;
+    } else if (findBundVerpackungseinheiten != null) {
+      //localBundVerpackungseinheiten = items.bundeinheit.toString();
+      selectedBundVerpackungseinheiten = findBundVerpackungseinheiten!;
     }
     if (findEigenschaft == null) {
       _eigenschaft = eigenschaftController.text;

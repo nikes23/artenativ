@@ -134,17 +134,15 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       _vpeBund = items.vpebund!;
     }
     if (items.einzelneinheit == '') {
-      items.einzelneinheit == null;
+      selectedEinzelnVerpackungseinheiten = null;
     } else if (items.einzelneinheit != null) {
       selectedEinzelnVerpackungseinheiten = items.einzelneinheit;
     }
     if (items.bundeinheit == '') {
-      log("Bundeinheit: " + items.bundeinheit.toString());
-      localBundVerpackungseinheiten = null;
-      log("Bundeinheit2: " + items.bundeinheit.toString());
+      //localBundVerpackungseinheiten = null;
+      selectedBundVerpackungseinheiten = null;
     } else if (items.bundeinheit != null) {
-      localBundVerpackungseinheiten = items.bundeinheit.toString();
-      log('LocalBund: ' + localBundVerpackungseinheiten!);
+      //localBundVerpackungseinheiten = items.bundeinheit.toString();
       selectedBundVerpackungseinheiten = items.bundeinheit;
     }
     if (items.eigenschaft == null) {
@@ -348,7 +346,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Lieferanten aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.lieferant,
+                                  //value: items.lieferant,
+                                  value: selectedHersteller,
                                   onSaved: (value) => selectedHersteller,
                                   onChanged: (hersteller) {
                                     if (hersteller == 'Admonter') {
@@ -748,7 +747,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte einen Artikeltyp aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.artikeltyp,
+                                  //value: items.artikeltyp,
+                                  value: selectedArtikeltyp,
                                   onSaved: (value) => selectedArtikeltyp,
                                   onChanged: (artikeltyp) {
                                     if (artikeltyp == 'Fliesen') {
@@ -866,7 +866,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Kategorie aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.kategorie,
+                                  //value: items.kategorie,
+                                  value: selectedKategorie,
                                   onSaved: (value) => selectedKategorie,
                                   onChanged: (kategorie) {
                                     if (kategorie == 'Massivparkett') {
@@ -977,6 +978,9 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       materialien = werkzeugeZubehoerMaterial;
                                     } else if (kategorie == 'Schleifmittel') {
                                       materialien = werkzeugeZubehoerMaterial;
+                                    } else if (kategorie ==
+                                        'Keine Kategorie definiert') {
+                                      materialien = keinMaterial;
                                     } else if (kategorie == null) {
                                       setState(() {
                                         List<String> glob;
@@ -1253,7 +1257,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte ein Material aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.material,
+                                  //value: items.material,
+                                  value: selectedMaterial,
                                   onSaved: (value) => selectedMaterial,
                                   onChanged: (material) {
                                     setState(() {
@@ -1522,7 +1527,9 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                               ? "Einheit auswählen"
                                               : null,
                                           dropdownColor: Colors.white,
-                                          value: items.einzelneinheit,
+                                          //value: items.einzelneinheit,
+                                          value:
+                                              selectedEinzelnVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedEinzelnVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1619,7 +1626,9 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                           validator: (value) =>
                                               value == null ? null : null,
                                           dropdownColor: Colors.white,
-                                          value: items.bundeinheit,
+                                          //value: items.bundeinheit,
+                                          value:
+                                              selectedBundVerpackungseinheiten,
                                           onSaved: (value) =>
                                               selectedBundVerpackungseinheiten,
                                           onChanged: (einheit) {
@@ -1711,7 +1720,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Beanspruchungsklasse aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.beanspruchungsklasse,
+                                  //value: items.beanspruchungsklasse,
+                                  value: selectedBeanspruchung,
                                   onSaved: (value) => selectedBeanspruchung,
                                   onChanged: (beanspruchung) {
                                     setState(() {
@@ -1755,7 +1765,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                       ? "Wählen Sie bitte eine Verfügbarkeit aus!"
                                       : null,
                                   dropdownColor: Colors.white,
-                                  value: items.verfugbarkeit,
+                                  //value: items.verfugbarkeit,
+                                  value: selectedVerfugbarkeit,
                                   onSaved: (value) => selectedVerfugbarkeit,
                                   onChanged: (verfugbarkeit) {
                                     setState(() {
@@ -2539,7 +2550,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 barcodeResult = null;
               });
 
-              _uploadImage();
+              //_uploadImage();
 
               Artikel model = Artikel(
                 lieferant: localHersteller,
@@ -2578,6 +2589,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                   });
 
                   if (response.data != null && image != null) {
+                    _uploadImage();
                     log("Bild wurde hochgeladen");
                     log('Intern Bild: $artNrInternString');
                     showDialog(
@@ -2590,7 +2602,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
-                                  'Der Artikel wurde erfolgreich aktualisiert'),
+                                  'Der Artikel wurde erfolgreich aktualisiert!'),
                               actions: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -2631,7 +2643,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                 style: TextStyle(color: Color(0xFFF76A25)),
                               )),
                               content: const Text(
-                                  'Der Artikel wurde ohne Bild aktualisiert, da keines ausgewählt/aufgenommen wurde'),
+                                  'Der Artikel wurde ohne Bild aktualisiert, weil kein neues ausgewählt oder aufgenommen wurde!'),
                               actions: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
