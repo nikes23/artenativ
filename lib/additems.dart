@@ -1210,8 +1210,9 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                             ),
                           ),
                           buildButtonContainer(),
-                          Text(response),
-                          //getListView(context),
+                          const SizedBox(
+                            height: 20.0,
+                          ), //getListView(context),
                           //TESTBUTTONS
                           /**const SizedBox(
                             height: 20.0,
