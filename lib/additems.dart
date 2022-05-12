@@ -1212,7 +1212,8 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           buildButtonContainer(),
                           Text(response),
                           //getListView(context),
-                          const SizedBox(
+                          //TESTBUTTONS
+                          /**const SizedBox(
                             height: 20.0,
                           ),
                           Container(
@@ -1373,7 +1374,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           ),
                           const SizedBox(
                             height: 20.0,
-                          ),
+                          ),*/
                           //Test Print Button
                           /**
                             Container(
@@ -1415,7 +1416,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   print('Print result: ${res.msg}');
                                 }),
                           ),*/
-                          Container(
+                          /**Container(
                             height: 56.0,
                             width: 300,
                             decoration: BoxDecoration(
@@ -1811,7 +1812,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                     log("ArtNrLieferant ist leer");
                                   }
                                 }),
-                          ),
+                          ),*/
                         ],
                       ),
                     ),
