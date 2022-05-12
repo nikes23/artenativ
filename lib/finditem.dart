@@ -39,7 +39,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
   String localEinzelnVerpackungseinheiten = '';
   String? localBundVerpackungseinheiten = '';
 
-  //Variables for Textfields Content
+  //Variables for Text Fields Content
   String _artNrLieferant = '';
   String _artNrIntern = '';
   String _eanBarcode = '';
@@ -127,10 +127,8 @@ class _FindItemScreenState extends State<FindItemScreen> {
       selectedEinzelnVerpackungseinheiten = findEinzelnVerpackungseinheiten!;
     }
     if (findBundVerpackungseinheiten == '') {
-      //localBundVerpackungseinheiten = null;
       selectedBundVerpackungseinheiten = null;
     } else if (findBundVerpackungseinheiten != null) {
-      //localBundVerpackungseinheiten = items.bundeinheit.toString();
       selectedBundVerpackungseinheiten = findBundVerpackungseinheiten!;
     }
     if (findEigenschaft == null) {

@@ -44,7 +44,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   String localEinzelnVerpackungseinheiten = '';
   String? localBundVerpackungseinheiten = '';
 
-  //Variables for Textfields Content
+  //Variables for Text Fields Content
   String _artNrLieferant = '';
   String _artNrIntern = '';
   String _eanBarcode = '';
@@ -132,10 +132,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       selectedEinzelnVerpackungseinheiten = items.einzelneinheit;
     }
     if (items.bundeinheit == '') {
-      //localBundVerpackungseinheiten = null;
       selectedBundVerpackungseinheiten = null;
     } else if (items.bundeinheit != null) {
-      //localBundVerpackungseinheiten = items.bundeinheit.toString();
       selectedBundVerpackungseinheiten = items.bundeinheit;
     }
     if (items.eigenschaft == null) {
