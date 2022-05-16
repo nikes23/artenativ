@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'dismisskeyboard.dart';
 
 Widget _defaultHome = const LoginScreen();
+bool _initialURILinkHandled = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
