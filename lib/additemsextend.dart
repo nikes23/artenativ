@@ -9,10 +9,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'models/ItemDataModel.dart';
 import 'dart:math' as math;
-import 'package:artenativ/home.dart';
-import 'package:artenativ/login.dart';
 import 'package:flutter/material.dart';
 import 'package:artenativ/globals.dart';
 
@@ -23,7 +20,7 @@ class AddItemsExtendScreen extends StatefulWidget {
 
   @override
   _AddItemsExtendScreenState createState() =>
-      _AddItemsExtendScreenState(items: this.items);
+      _AddItemsExtendScreenState(items: items);
 }
 
 class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
@@ -37,10 +34,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     return ((value * mod).round().toDouble() / mod);
   }
 
-  var file, extention, imagePath;
-
-  String response = '';
-
   String localHersteller = '';
   String localArtikeltyp = '';
   String localKategorie = '';
@@ -51,7 +44,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
   String localEinzelnVerpackungseinheiten = '';
   String? localBundVerpackungseinheiten = '';
 
-  //Variables for Textfields Content
+  //Variables for Text Fields Content
   String _artNrLieferant = '';
   String _artNrIntern = '';
   String _eanBarcode = '';
@@ -91,7 +84,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
 
   File? image;
   String? imageName;
-  var imageContainer;
+  File? imagePath;
 
   @override
   void initState() {
@@ -139,10 +132,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       selectedEinzelnVerpackungseinheiten = items.einzelneinheit;
     }
     if (items.bundeinheit == '') {
-      //localBundVerpackungseinheiten = null;
       selectedBundVerpackungseinheiten = null;
     } else if (items.bundeinheit != null) {
-      //localBundVerpackungseinheiten = items.bundeinheit.toString();
       selectedBundVerpackungseinheiten = items.bundeinheit;
     }
     if (items.eigenschaft == null) {
@@ -248,60 +239,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          /*
-                          const SizedBox(
-                            width: 600,
-                            child: Center(
-                              child: Text(
-                                'Artikel bearbeiten',
-                                style: TextStyle(
-                                  color: Color(0xFFF76A25),
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          */
-                          const SizedBox(
-                            height: 20.0,
-                          ),
                           getListView(context),
                           //Lieferant
-                          /*SizedBox(
-                            width: 600,
-                            child: Column(
-                              children: [
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text(
-                                      'Hersteller*',
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                TextFormField(
-                                  //validator: UserNameValidator.validate,
-                                  style: const TextStyle(
-                                      fontSize: 18.0, color: Colors.black),
-                                  decoration: buildSignUpInputDecoration(
-                                      'Herstellername eingeben', Icons.house),
-                                  onSaved: (value) => _firstName = value!,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Bitte geben Sie den Herstellernamen ein';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),*/
                           SizedBox(
                             width: 600,
                             child: Column(
@@ -1478,7 +1417,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                         style: const TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black),
-                                        decoration: buildInputDecoration(
+                                        decoration: buildInputDecorationVPE(
                                             'Einzeln eingeben'),
                                         onSaved: (value) =>
                                             _vpeEinzeln = value!,
@@ -1580,7 +1519,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                         style: const TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black),
-                                        decoration: buildInputDecoration(
+                                        decoration: buildInputDecorationVPE(
                                             'Bund eingeben'),
                                         onSaved: (value) => _vpeBund = value!,
                                         onChanged: (value) {
@@ -2068,12 +2007,12 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                         double mwstPlaceholder11 =
                                             double.parse(mwstPlaceholder1);
                                         mwstPlaceholder11.toStringAsFixed(2);
-                                        log('DoubleCont: ${mwstPlaceholder11}');
+                                        log('DoubleCont: $mwstPlaceholder11');
                                         mwstCalculate = double.parse(
                                             (mwstPlaceholder11 * 119 / 100)
                                                 .toStringAsFixed(2));
                                         mwstCalculate.toStringAsFixed(2);
-                                        log('mwResult: ${mwstCalculate}');
+                                        log('mwResult: $mwstCalculate');
                                         mwstResult = mwstCalculate.toString();
                                         verkaufspreisMwStController.text =
                                             mwstResult
@@ -2211,10 +2150,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                             ),
                           ),
                           buildButtonContainer(),
-                          Text(response),
-                          //getListView(context),
                           const SizedBox(
-                            height: 20.0,
+                            height: 40.0,
                           ),
                         ],
                       ),
@@ -2311,6 +2248,30 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       hintStyle: const TextStyle(
         color: Colors.black,
         fontSize: 16.0,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      focusColor: Colors.black,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Colors.grey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Color(0xFFF76A25)),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+    );
+  }
+
+  InputDecoration buildInputDecorationVPE(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Colors.black,
+        fontSize: 14.0,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -2558,7 +2519,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 kategorie: localKategorie,
                 artnrlieferant: _artNrLieferant,
                 lieferantandartikelnummer: lieferantandartikelnummer,
-                artnrintern: items.artnrintern,
+                artnrintern: _artNrIntern,
                 eancode: _eanBarcode,
                 bezeichnung: _bezeichnung,
                 material: localMaterial,
@@ -2579,7 +2540,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                 verkaufspreisdrei: _verkaufspreisDrei,
                 ausstellplatz: _ausstellungsplatz,
                 imageName: imageName,
-                //imageName: imageName,
               );
 
               APIService.updateartikel(model, model.artnrintern).then(
@@ -2591,7 +2551,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                   if (response.data != null && image != null) {
                     _uploadImage();
                     log("Bild wurde hochgeladen");
-                    log('Intern Bild: $artNrInternString');
                     showDialog(
                         context: context,
                         barrierDismissible: true,
@@ -2630,9 +2589,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
                   } else if (response.data != null && image == null) {
-                    log('Intern ohne Bild: $artNrInternString');
                     showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -2671,7 +2628,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
                   } else {
                     log("Bild hochladen fehlgeschlagen");
                     showDialog(
@@ -2711,7 +2667,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                               ],
                             ));
                     Navigator.pop(context);
-                    //Navigator.pop(context);
                   }
                 },
               );
@@ -2722,10 +2677,8 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
 
   _uploadImage() async {
     imageName = image?.path.split('/').last;
-    //String? fileName = image?.path.split('/').last;
 
     Map<String, String> _headers = <String, String>{
-      //'Content-Type': 'multipart/form-data',
       'Content-Type': 'application/json, multipart/form-data',
       'Accept': 'application/json',
     };
@@ -2734,24 +2687,21 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
         "image": await MultipartFile.fromFile(
           image!.path,
           filename: imageName,
-          //filename: fileName,
           contentType: MediaType("image", "jpeg"),
         ),
       },
     );
-    Map<String, String> headers = <String, String>{
-      'Content-Type': 'multipart/form-data'
-    };
-    //_headers['access_token'] = ;
-    //var response = await Dio().post("http://localhost:4000/upload", data: formData);
+
     //ONLINE HEROKU
     var response = await Dio().post("http://artenativ.herokuapp.com/upload",
         data: formData, options: Options(headers: _headers));
+
+    //OFFICE LOCAL IMAGE UPLOAD
     /**
-        //OFFICE LOCAL IMAGE UPLOAD
         var response = await Dio().post("http://192.168.188.85:4000/upload",
         data: formData, options: Options(headers: _headers));
      */
+
     //var response = await Dio().post("http://192.168.188.85:4000/artikel/addartikel", data: formData);
     //var response = await Dio().post(Uri.http(Config.apiURL, Config.addartikelAPI).toString(), data: formData);
     //var response = await Dio().post("http://192.168.178.37:4000/upload", data: formData);
@@ -2921,55 +2871,6 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     debugPrint('Bild: $image');
     return listView;
   }
-
-  showwidget() {
-    if (image != null) {
-      Hero(
-        tag: 1,
-        child: CircleAvatar(
-          backgroundImage: NetworkImage(image.toString()),
-          radius: 100.0,
-        ),
-      );
-    } else {
-      Image.asset(
-        'assets/Artenativ_Logo_Schwarz.png',
-        width: 300,
-        fit: BoxFit.cover,
-      );
-    }
-    /*Hero(
-      tag: items.artnrintern,
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(
-            'https://wiplano.de/media/image/product/91860/md/landhausdiele-3-schicht-eiche-rustique-5g-zufaellige-oberflaechenveredelung-schwarz-gespachtelt-1100-x-190-mm.jpg'),
-        radius: 100.0,
-      ),
-    );*/
-
-    /**if (items.image != null) {
-      Hero(
-        tag: items.id,
-        child: CircleAvatar(
-          backgroundImage: NetworkImage(items.image),
-          radius: 100.0,
-        ),
-      );
-    } else {
-      Image.asset(
-        'assets/Artenativ_Logo_Schwarz.png',
-        width: 300,
-        fit: BoxFit.cover,
-      );
-    }*/
-  }
-
-  void navigateToSignIn() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const LoginScreen(), fullscreenDialog: true));
-  }
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -3021,7 +2922,7 @@ class DropdownAusstellungsplatz extends StatefulWidget {
 }
 
 class _DropdownAusstellungsplatzState extends State<DropdownAusstellungsplatz> {
-  String? selectedValue = null;
+  String? selectedValue;
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField(

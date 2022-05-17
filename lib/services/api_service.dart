@@ -25,7 +25,14 @@ class APIService {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http(
+    //http Login
+    /*var url = Uri.http(
+      Config.apiURL,
+      Config.loginAPI,
+    );*/
+
+    //https Login
+    var url = Uri.https(
       Config.apiURL,
       Config.loginAPI,
     );
@@ -56,7 +63,14 @@ class APIService {
       'Access-Control-Allow-Origin': '*'
     };
 
-    var url = Uri.http(
+    //http Get Last Intern ID Number
+    /*var url = Uri.http(
+      Config.apiURL,
+      Config.internartikelidAPI,
+    );*/
+
+    //https Get Last Intern ID Number
+    var url = Uri.https(
       Config.apiURL,
       Config.internartikelidAPI,
     );
@@ -93,9 +107,17 @@ class APIService {
     };
 
     String urlArtNrIntern = artnrintern.toString();
-    var url = Uri.http(
+
+    //http Find One Artikel
+    /*var url = Uri.http(
       Config.apiURL,
       //Config.findartikelAPI + '10000045',
+      Config.findartikelAPI + urlArtNrIntern,
+    );*/
+
+    //https Find One Artikel
+    var url = Uri.https(
+      Config.apiURL,
       Config.findartikelAPI + urlArtNrIntern,
     );
 
@@ -159,6 +181,7 @@ class APIService {
       //findVerkaufspreisMWST = findartikel.verkaufspreismwst;
       findAusstellplatz = findartikel.ausstellplatz;
       findImageName = findartikel.imageName;
+      findImagePath = findartikel.imagePath;
 
       log('findLieferant: $lokallieferant');
       log('findArtikeltyp: $findArtikeltyp');
@@ -184,6 +207,7 @@ class APIService {
       //log('findVerkaufspreisMWST: ${findVerkaufspreisMWST}');
       log('findAusstellplatz: $findAusstellplatz');
       log('findImageName: $findImageName');
+      log('findImagePath: $findImagePath');
 
       return findartikel;
       //return parseArtikel(response.body);
@@ -199,7 +223,14 @@ class APIService {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http(
+    //http User Registration
+    /*var url = Uri.http(
+      Config.apiURL,
+      Config.registerAPI,
+    );*/
+
+    //https User Registration
+    var url = Uri.https(
       Config.apiURL,
       Config.registerAPI,
     );
@@ -222,7 +253,14 @@ class APIService {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http(
+    //http Add Article
+    /*var url = Uri.http(
+      Config.apiURL,
+      Config.addartikelAPI,
+    );*/
+
+    //https Add Article
+    var url = Uri.https(
       Config.apiURL,
       Config.addartikelAPI,
     );
@@ -246,7 +284,15 @@ class APIService {
     };
 
     log("ArtNrInternAPI: " + findArtNrIntern);
-    var url = Uri.http(
+
+    //http Update Article
+    /*var url = Uri.http(
+      Config.apiURL,
+      Config.updateartikelAPI + findArtNrIntern,
+    );*/
+
+    //https Update Article
+    var url = Uri.https(
       Config.apiURL,
       Config.updateartikelAPI + findArtNrIntern,
     );

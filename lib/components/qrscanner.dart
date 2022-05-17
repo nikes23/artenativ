@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:artenativ/finditem.dart';
 import 'package:artenativ/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
 import '../services/api_service.dart';
 
 class QRScannerScreen extends StatelessWidget {
@@ -72,7 +69,11 @@ class QRScannerScreen extends StatelessWidget {
                 if (qrcodeString != null) {
                   qrcodeResult = qrcodeString;
                   debugPrint('QR Code found! $qrcodeString');
-                  int qrcodeInt = int.parse(qrcodeString);
+
+                  var uri = Uri.parse(qrcodeString);
+
+                  int qrcodeInt =
+                      int.parse(uri.queryParameters['id'].toString());
 
                   if (qrcodeInt <= artNrIntern! && qrcodeInt >= 10000000) {
                     APIService.findartikel(qrcodeInt).then(

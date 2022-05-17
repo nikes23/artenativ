@@ -66,6 +66,10 @@ PODS:
   - nanopb/encode (2.30908.0)
   - PromisesObjC (2.1.0)
   - Protobuf (3.20.1)
+  - protocol_handler (0.0.1):
+    - Flutter
+  - uni_links (0.0.1):
+    - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -75,6 +79,8 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
+  - protocol_handler (from `.symlinks/plugins/protocol_handler/ios`)
+  - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -104,6 +110,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker/ios"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/ios"
+  protocol_handler:
+    :path: ".symlinks/plugins/protocol_handler/ios"
+  uni_links:
+    :path: ".symlinks/plugins/uni_links/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
@@ -126,6 +136,8 @@ SPEC CHECKSUMS:
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 99b6f43f9e1044bd87a95a60beff28c2c44ddb72
   Protobuf: b60ec2f51ad74765f44d0c09d2e0579d7de21745
+  protocol_handler: ae9efcf3b307f3fdffcd9d5252775b9f7d9f0d09
+  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
 PODFILE CHECKSUM: 4e8f8b2be68aeea4c0d5beb6ff1e79fface1d048

@@ -1,37 +1,40 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - FMDB (2.7.5):
-    - FMDB/standard (= 2.7.5)
-  - FMDB/standard (2.7.5)
-  - sqflite (0.0.2):
+  - mobile_scanner (0.0.1):
     - FlutterMacOS
-    - FMDB (>= 2.7.5)
+  - protocol_handler (0.0.1):
+    - FlutterMacOS
+  - uni_links_desktop (0.0.1):
+    - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
+  - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
+  - protocol_handler (from `Flutter/ephemeral/.symlinks/plugins/protocol_handler/macos`)
+  - uni_links_desktop (from `Flutter/ephemeral/.symlinks/plugins/uni_links_desktop/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
-
-SPEC REPOS:
-  trunk:
-    - FMDB
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
-  sqflite:
-    :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
+  mobile_scanner:
+    :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
+  protocol_handler:
+    :path: Flutter/ephemeral/.symlinks/plugins/protocol_handler/macos
+  uni_links_desktop:
+    :path: Flutter/ephemeral/.symlinks/plugins/uni_links_desktop/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
-  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
+  mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
+  protocol_handler: 587e1caf6c0b92ce351ab14081968dae49cb8cc6
+  uni_links_desktop: 45900fb319df48fcdea2df0756e9c2626696b026
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
 
-PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+PODFILE CHECKSUM: b259708c22dc81a9c686936300884883e88a7b04
 
 COCOAPODS: 1.11.2
