@@ -1,4 +1,9 @@
+import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:uni_links/uni_links.dart';
 
 import 'package:artenativ/forgetpassword.dart';
 import 'package:artenativ/home.dart';
@@ -8,6 +13,7 @@ import 'package:artenativ/sign_up.dart';
 import 'package:flutter/material.dart';
 
 import 'config.dart';
+import 'finditem.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,6 +23,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _initialURILinkHandled = false;
+
+  Uri? _initialURI;
+  Uri? _currentURI;
+  Object? _err;
+  //StreamSubscription? _streamSubscription;
+  StreamSubscription? _sub;
   bool isApiCallProcess = false;
   final _formKey = GlobalKey<FormState>();
   String error = '';
@@ -35,9 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    //initUniLinks();
+    _initURIHandler();
+    _incomingLinkHandler();
+  }
+
+  @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     myControllerMail.dispose();
+    _sub?.cancel();
     super.dispose();
   }
 
@@ -248,6 +270,155 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> initUniLinks() async {
+    // ... check initialLink
+
+    // Attach a listener to the stream
+    _sub = linkStream.listen((String? link) {
+      // Parse the link and warn the user, if it is not correct
+      if (link != null) {
+        print('Listener is working');
+        var uri = Uri.parse(link);
+        if (uri.queryParameters['id'] != null) {
+          var queryPara = uri.queryParameters['id'];
+          int intQueryParameters = int.parse(queryPara!);
+
+          print(uri.queryParameters['id'].toString());
+          log('QueryParameter: ' + intQueryParameters.toString());
+
+          if (intQueryParameters <= 10000400 &&
+              intQueryParameters >= 10000000) {
+            APIService.findartikel(intQueryParameters).then(
+              (response) {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const FindItemScreen()));
+                /*Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FindItemScreen()));*/
+              },
+            );
+          }
+        }
+      }
+    }, onError: (err) {
+      // Handle exception by warning the user their action did not succeed
+    });
+
+    // NOTE: Don't forget to call _sub.cancel() in dispose()
+  }
+
+  Future<void> _initURIHandler() async {
+    if (!_initialURILinkHandled) {
+      _initialURILinkHandled = true;
+      try {
+        final initialURI = await getInitialUri();
+        // Use the initialURI and warn the user if it is not correct,
+        // but keep in mind it could be `null`.
+        if (initialURI != null) {
+          debugPrint("Initial URI received $initialURI");
+
+          if (initialURI.queryParameters['id'] != null) {
+            var queryPara = initialURI.queryParameters['id'];
+            int intQueryParameters = int.parse(queryPara!);
+
+            print(initialURI.queryParameters['id'].toString());
+            log('ColdStart QueryParameter: ' + intQueryParameters.toString());
+
+            if (intQueryParameters >= 10000000) {
+              APIService.findartikel(intQueryParameters).then(
+                (response) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const FindItemScreen()));
+                  /*Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FindItemScreen()));*/
+                },
+              );
+            }
+          }
+
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _initialURI = initialURI;
+          });
+        } else {
+          debugPrint("Null Initial URI received");
+        }
+      } on PlatformException {
+        // Platform messages may fail, so we use a try/catch PlatformException.
+        // Handle exception by warning the user their action did not succeed
+        debugPrint("Failed to receive initial uri");
+      } on FormatException catch (err) {
+        if (!mounted) {
+          return;
+        }
+        debugPrint('Malformed Initial URI received');
+        setState(() => _err = err);
+      }
+    }
+  }
+
+  /// Handle incoming links - the ones that the app will receive from the OS
+  /// while already started.
+  void _incomingLinkHandler() {
+    if (!kIsWeb) {
+      // It will handle app links while the app is already started - be it in
+      // the foreground or in the background.
+      _sub = uriLinkStream.listen((Uri? uri) {
+        if (!mounted) {
+          return;
+        }
+        debugPrint('Received URI: $uri');
+        setState(() {
+          _currentURI = uri;
+          _err = null;
+        });
+
+        if (uri != null) {
+          print('Listener is working');
+          //var uri = Uri.parse(link);
+          if (uri.queryParameters['id'] != null) {
+            var queryPara = uri.queryParameters['id'];
+            int intQueryParameters = int.parse(queryPara!);
+
+            print(uri.queryParameters['id'].toString());
+            log('QueryParameter: ' + intQueryParameters.toString());
+
+            if (intQueryParameters >= 10000000) {
+              APIService.findartikel(intQueryParameters).then(
+                (response) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const FindItemScreen()));
+                  /*Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FindItemScreen()));*/
+                },
+              );
+            }
+          }
+        }
+      }, onError: (Object err) {
+        if (!mounted) {
+          return;
+        }
+        debugPrint('Error occurred: $err');
+        setState(() {
+          _currentURI = null;
+          if (err is FormatException) {
+            _err = err;
+          } else {
+            _err = null;
+          }
+        });
+      });
+    }
   }
 
   Widget buildTextFieldMail(String hintText) {
