@@ -1799,7 +1799,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'Verkaufspreis 1*',
+                                      'Verkaufspreis 1',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
@@ -1857,7 +1857,7 @@ class _FindItemScreenState extends State<FindItemScreen> {
                                   child: Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      'Verkaufspreis 2*',
+                                      'Verkaufspreis 2',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.black,
