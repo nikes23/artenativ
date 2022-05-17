@@ -208,7 +208,9 @@ List<DropdownMenuItem<String>> verfugbarkeit = [
 ];
 
 List<DropdownMenuItem<String>> verpackungseinheiten = [
-  const DropdownMenuItem(child: Text("- Einheit auswählen -"), value: null),
+  const DropdownMenuItem(
+      child: Text("- Einheit auswählen -", style: TextStyle(fontSize: 14.0)),
+      value: null),
   const DropdownMenuItem(child: Text("Ampulle(n)"), value: "Ampulle(n)"),
   const DropdownMenuItem(child: Text("Becher"), value: "Becher"),
   const DropdownMenuItem(child: Text("Behälter"), value: "Behälter"),
@@ -256,7 +258,9 @@ List<DropdownMenuItem<String>> verpackungseinheiten = [
 ];
 
 List<DropdownMenuItem<String>> verpackungseinheitenBund = [
-  const DropdownMenuItem(child: Text("- Einheit auswählen -"), value: null),
+  const DropdownMenuItem(
+      child: Text("- Einheit auswählen -", style: TextStyle(fontSize: 14.0)),
+      value: null),
   const DropdownMenuItem(child: Text("Ampulle(n)"), value: "Ampulle(n)"),
   const DropdownMenuItem(child: Text("Becher"), value: "Becher"),
   const DropdownMenuItem(child: Text("Behälter"), value: "Behälter"),

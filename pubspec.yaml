@@ -41,6 +41,8 @@ dependencies:
   esc_pos_utils_plus: ^2.0.1+6
   # Deeplink
   uni_links: ^0.5.1
+  # Deeplink Desktop
+  uni_links_desktop: ^0.1.2
   # api_cache_manager: ^1.0.2
   # sqflite: ^2.0.2
 

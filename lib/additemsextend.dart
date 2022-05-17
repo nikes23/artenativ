@@ -1417,7 +1417,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                         style: const TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black),
-                                        decoration: buildInputDecoration(
+                                        decoration: buildInputDecorationVPE(
                                             'Einzeln eingeben'),
                                         onSaved: (value) =>
                                             _vpeEinzeln = value!,
@@ -1519,7 +1519,7 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
                                         style: const TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black),
-                                        decoration: buildInputDecoration(
+                                        decoration: buildInputDecorationVPE(
                                             'Bund eingeben'),
                                         onSaved: (value) => _vpeBund = value!,
                                         onChanged: (value) {
@@ -2248,6 +2248,30 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
       hintStyle: const TextStyle(
         color: Colors.black,
         fontSize: 16.0,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      focusColor: Colors.black,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Colors.grey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(width: 2, color: Color(0xFFF76A25)),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+    );
+  }
+
+  InputDecoration buildInputDecorationVPE(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Colors.black,
+        fontSize: 14.0,
       ),
       filled: true,
       fillColor: Colors.white,
