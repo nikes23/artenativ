@@ -26,16 +26,16 @@ class APIService {
     };
 
     //http Login
-    /*var url = Uri.http(
-      Config.apiURL,
-      Config.loginAPI,
-    );*/
-
-    //https Login
-    var url = Uri.https(
+    var url = Uri.http(
       Config.apiURL,
       Config.loginAPI,
     );
+
+    //https Login
+    /*var url = Uri.https(
+      Config.apiURL,
+      Config.loginAPI,
+    );*/
 
     var response = await client.post(
       url,
@@ -64,16 +64,16 @@ class APIService {
     };
 
     //http Get Last Intern ID Number
-    /*var url = Uri.http(
-      Config.apiURL,
-      Config.internartikelidAPI,
-    );*/
-
-    //https Get Last Intern ID Number
-    var url = Uri.https(
+    var url = Uri.http(
       Config.apiURL,
       Config.internartikelidAPI,
     );
+
+    //https Get Last Intern ID Number
+    /*var url = Uri.https(
+      Config.apiURL,
+      Config.internartikelidAPI,
+    );*/
 
     var response = await client.get(url, headers: requestHeaders);
 
@@ -109,17 +109,17 @@ class APIService {
     String urlArtNrIntern = artnrintern.toString();
 
     //http Find One Artikel
-    /*var url = Uri.http(
+    var url = Uri.http(
       Config.apiURL,
       //Config.findartikelAPI + '10000045',
       Config.findartikelAPI + urlArtNrIntern,
-    );*/
+    );
 
     //https Find One Artikel
-    var url = Uri.https(
+    /*var url = Uri.https(
       Config.apiURL,
       Config.findartikelAPI + urlArtNrIntern,
-    );
+    );*/
 
     log('URL: $url');
 
@@ -224,16 +224,16 @@ class APIService {
     };
 
     //http User Registration
-    /*var url = Uri.http(
-      Config.apiURL,
-      Config.registerAPI,
-    );*/
-
-    //https User Registration
-    var url = Uri.https(
+    var url = Uri.http(
       Config.apiURL,
       Config.registerAPI,
     );
+
+    //https User Registration
+    /*var url = Uri.https(
+      Config.apiURL,
+      Config.registerAPI,
+    );*/
 
     var response = await client.post(
       url,
@@ -254,16 +254,16 @@ class APIService {
     };
 
     //http Add Article
-    /*var url = Uri.http(
-      Config.apiURL,
-      Config.addartikelAPI,
-    );*/
-
-    //https Add Article
-    var url = Uri.https(
+    var url = Uri.http(
       Config.apiURL,
       Config.addartikelAPI,
     );
+
+    //https Add Article
+    /*var url = Uri.https(
+      Config.apiURL,
+      Config.addartikelAPI,
+    );*/
 
     var response = await client.post(
       url,
@@ -286,16 +286,16 @@ class APIService {
     log("ArtNrInternAPI: " + findArtNrIntern);
 
     //http Update Article
-    /*var url = Uri.http(
-      Config.apiURL,
-      Config.updateartikelAPI + findArtNrIntern,
-    );*/
-
-    //https Update Article
-    var url = Uri.https(
+    var url = Uri.http(
       Config.apiURL,
       Config.updateartikelAPI + findArtNrIntern,
     );
+
+    //https Update Article
+    /*var url = Uri.https(
+      Config.apiURL,
+      Config.updateartikelAPI + findArtNrIntern,
+    );*/
 
     log('URL: ' + url.toString());
     log('JSON Encode: ' + jsonEncode(model.toJson()));

@@ -18,16 +18,16 @@ Future<List<ItemDataModel>> ReadJsonData() async {
 
 Future<List<Artikel>> LiveJsonData() async {
   //http Search for all Articles
-  /*var url = Uri.http(
-    Config.apiURL,
-    Config.getAllArticleAPI,
-  );*/
-
-  //https Search for all Articles
-  var url = Uri.https(
+  var url = Uri.http(
     Config.apiURL,
     Config.getAllArticleAPI,
   );
+
+  //https Search for all Articles
+  /*var url = Uri.https(
+    Config.apiURL,
+    Config.getAllArticleAPI,
+  );*/
 
   log("URL: " + url.toString());
 

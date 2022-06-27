@@ -2693,7 +2693,9 @@ class _AddItemsExtendScreenState extends State<AddItemsExtendScreen> {
     );
 
     //ONLINE HEROKU
-    var response = await Dio().post("http://artenativ.herokuapp.com/upload",
+    //var response = await Dio().post("http://artenativ.herokuapp.com/upload",
+    //ONLINE OWN SERVER
+    var response = await Dio().post("http://api.artenativ.de/upload",
         data: formData, options: Options(headers: _headers));
 
     //OFFICE LOCAL IMAGE UPLOAD

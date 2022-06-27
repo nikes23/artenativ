@@ -34,7 +34,7 @@ dependencies:
   http: ^0.13.4
   dio: ^4.0.6
   # QR-Code & Barcode Scanner
-  mobile_scanner: ^1.0.0
+  mobile_scanner: ^2.0.0
   # IP Printer
   esc_pos_printer: ^4.1.0
   #esc_pos_utils: ^1.1.0
